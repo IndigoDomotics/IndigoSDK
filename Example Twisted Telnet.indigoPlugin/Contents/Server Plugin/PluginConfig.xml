@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<PluginConfig>
+	<!-- You can add a SupportURL element inside here if you want a context
+		 sensitive help link on the config UI - otherwise it will just link
+		 to the URL specified in the AboutInformation element. -->
+	<SupportURL>http://wiki.indigodomo.com/doku.php?id=plugins:example_twisted_telnet_1</SupportURL>
+
+	<Field type="checkbox" id="flashingEnabled">
+		<Label>Remote telnet client device flashing:</Label>
+		<Description>Enabled</Description>
+	</Field>
+</PluginConfig>
