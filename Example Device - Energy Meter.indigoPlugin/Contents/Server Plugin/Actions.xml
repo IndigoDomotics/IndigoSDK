@@ -12,7 +12,7 @@
 <Actions>
 	<Action id="setBacklightBrightness" deviceFilter="self">
 		<Name>Set Backlight Brightness</Name>
-		<CallbackMethod>setBacklightBrightness</CallbackMethod>
+		<CallbackMethod>set_backlight_brightness</CallbackMethod>
 		<ConfigUI>
 			<Field id="description" type="textfield" hidden="true">
 				<Label>runtime calculated</Label>
