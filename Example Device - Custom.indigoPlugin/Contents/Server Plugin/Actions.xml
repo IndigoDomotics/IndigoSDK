@@ -3,11 +3,11 @@
 	<SupportURL>http://wiki.indigodomo.com/doku.php?id=plugins:example_dev_1</SupportURL>
 	<Action id="resetHardware" deviceFilter="self">
 		<Name>Reset Hardware</Name>
-		<CallbackMethod>reset_hardware</CallbackMethod>
+		<CallbackMethod>resetHardware</CallbackMethod>
 	</Action>
 	<Action id="updateHardwareFirmware" deviceFilter="self">
 		<Name>Update Hardware Firmware</Name>
-		<CallbackMethod>update_hardware_firmware</CallbackMethod>
+		<CallbackMethod>updateHardwareFirmware</CallbackMethod>
 		<ConfigUI>
 			<SupportURL>http://wiki.indigodomo.com/doku.php?id=plugins:example_dev_1</SupportURL>
 			<Field id="description" type="textfield" hidden="true">

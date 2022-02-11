@@ -8,6 +8,6 @@
 <MenuItems>
 	<MenuItem id="menu1">
 		<Name>Time Warp!</Name>
-		<CallbackMethod>time_warp</CallbackMethod>
+		<CallbackMethod>timeWarp</CallbackMethod>
 	</MenuItem>
 </MenuItems>
