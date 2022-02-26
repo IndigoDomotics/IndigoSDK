@@ -1,8 +1,8 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
 ####################
-# Copyright (c) 2014, Perceptive Automation, LLC. All rights reserved.
-# http://www.indigodomo.com
+# Copyright (c) 2022, Perceptive Automation, LLC. All rights reserved.
+# https://www.indigodomo.com
 
 import indigo
 
@@ -14,40 +14,39 @@ import sys
 
 ################################################################################
 class Plugin(indigo.PluginBase):
-	########################################
-	def __init__(self, pluginId, pluginDisplayName, pluginVersion, pluginPrefs):
-		super(Plugin, self).__init__(pluginId, pluginDisplayName, pluginVersion, pluginPrefs)
-		self.debug = True
+    ########################################
+    def __init__(self, plugin_id, plugin_display_name, plugin_version, plugin_prefs):
+        super().__init__(plugin_id, plugin_display_name, plugin_version, plugin_prefs)
+        self.debug = True
 
-	########################################
-	def startup(self):
-		self.debugLog(u"startup called -- subscribing to all X10 and INSTEON commands")
-		indigo.insteon.subscribeToIncoming()
-		indigo.insteon.subscribeToOutgoing()
-		indigo.x10.subscribeToIncoming()
-		indigo.x10.subscribeToOutgoing()
+    ########################################
+    def startup(self):
+        self.logger.debug("startup called -- subscribing to all X10 and INSTEON commands")
+        indigo.insteon.subscribeToIncoming()
+        indigo.insteon.subscribeToOutgoing()
+        indigo.x10.subscribeToIncoming()
+        indigo.x10.subscribeToOutgoing()
 
-	def shutdown(self):
-		self.debugLog(u"shutdown called")
+    def shutdown(self):
+        self.logger.debug("shutdown called")
 
-	########################################
-	def insteonCommandReceived(self, cmd):
-		self.debugLog(u"insteonCommandReceived: \n" + str(cmd))
+    ########################################
+    def insteonCommandReceived(self, cmd):
+        self.logger.debug(f"insteonCommandReceived: \n{str(cmd)}")
 
-	def insteonCommandSent(self, cmd):
-		self.debugLog(u"insteonCommandSent: \n" + str(cmd))
+    def insteonCommandSent(self, cmd):
+        self.logger.debug(f"insteonCommandSent: \n{str(cmd)}")
 
-	########################################
-	def x10CommandReceived(self, cmd):
-		self.debugLog(u"x10CommandReceived: \n" + str(cmd))
+    ########################################
+    def x10CommandReceived(self, cmd):
+        self.logger.debug(f"x10CommandReceived: \n{str(cmd)}")
 
-		if cmd.cmdType == "sec":	# or "x10" for power line commands
-			if cmd.secCodeId == 6:
-				if cmd.secFunc == "sensor alert (max delay)":
-					indigo.server.log(u"SENSOR OPEN")
-				elif cmd.secFunc == "sensor normal (max delay)":
-					indigo.server.log(u"SENSOR CLOSED")
+        if cmd.cmdType == "sec":    # or "x10" for power line commands
+            if cmd.secCodeId == 6:
+                if cmd.secFunc == "sensor alert (max delay)":
+                    self.logger.info("SENSOR OPEN")
+                elif cmd.secFunc == "sensor normal (max delay)":
+                    self.logger.info("SENSOR CLOSED")
 
-	def x10CommandSent(self, cmd):
-		self.debugLog(u"x10CommandSent: \n" + str(cmd))
-
+    def x10CommandSent(self, cmd):
+        self.logger.debug(f"x10CommandSent: \n{str(cmd)}")

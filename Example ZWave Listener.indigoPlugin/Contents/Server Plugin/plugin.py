@@ -1,8 +1,8 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
 ####################
-# Copyright (c) 2016, Perceptive Automation, LLC. All rights reserved.
-# http://www.indigodomo.com
+# Copyright (c) 2022, Perceptive Automation, LLC. All rights reserved.
+# https://www.indigodomo.com
 
 import indigo
 
@@ -15,51 +15,51 @@ import sys
 ########################################
 # Tiny function to convert a list of integers (bytes in this case) to a
 # hexidecimal string for pretty logging.
-def convertListToHexStr(byteList):
-	return ' '.join(["%02X" % byte for byte in byteList])
+def convert_list_to_hex_str(byte_list):
+    return ' '.join([f"{byte:02X}" for byte in byte_list])
 
 ################################################################################
 class Plugin(indigo.PluginBase):
-	########################################
-	def __init__(self, pluginId, pluginDisplayName, pluginVersion, pluginPrefs):
-		super(Plugin, self).__init__(pluginId, pluginDisplayName, pluginVersion, pluginPrefs)
-		self.debug = True
+    ########################################
+    def __init__(self, plugin_id, plugin_display_name, plugin_version, plugin_prefs):
+        super().__init__(plugin_id, plugin_display_name, plugin_version, plugin_prefs)
+        self.debug = True
 
-	########################################
-	def startup(self):
-		self.debugLog(u"startup called -- subscribing to all incoming and outgoing Z-Wave commands")
-		indigo.zwave.subscribeToIncoming()
-		indigo.zwave.subscribeToOutgoing()
+    ########################################
+    def startup(self):
+        self.logger.debug("startup called -- subscribing to all incoming and outgoing Z-Wave commands")
+        indigo.zwave.subscribeToIncoming()
+        indigo.zwave.subscribeToOutgoing()
 
-	def shutdown(self):
-		self.debugLog(u"shutdown called")
+    def shutdown(self):
+        self.logger.debug("shutdown called")
 
-	########################################
-	def zwaveCommandReceived(self, cmd):
-		byteList = cmd['bytes']			# List of the raw bytes just received.
-		byteListStr = convertListToHexStr(byteList)
-		nodeId = cmd['nodeId']			# Can be None!
-		endpoint = cmd['endpoint']		# Often will be None!
+    ########################################
+    def zwaveCommandReceived(self, cmd):
+        byte_list = cmd['bytes']         # List of the raw bytes just received.
+        byte_list_str = convert_list_to_hex_str(byte_list)
+        node_id = cmd['nodeId']          # Can be None!
+        endpoint = cmd['endpoint']      # Often will be None!
 
-		if nodeId and endpoint:
-			self.debugLog(u"received: %s (node %03d, endpoint %s)" % (byteListStr, nodeId, endpoint))
-		elif nodeId:
-			self.debugLog(u"received: %s (node %03d)" % (byteListStr, nodeId))
-		else:
-			self.debugLog(u"received: %s" % (byteListStr))
+        if node_id and endpoint:
+            self.logger.debug(f"received: {byte_list_str} (node {node_id:03d}, endpoint {endpoint})")
+        elif node_id:
+            self.logger.debug(f"received: {byte_list_str} (node {node_id:03d})")
+        else:
+            self.logger.debug(f"received: {byte_list_str}")
 
-	def zwaveCommandSent(self, cmd):
-		byteList = cmd['bytes']			# List of the raw bytes just sent.
-		byteListStr = convertListToHexStr(byteList)
-		timeDelta = cmd['timeDelta']	# The time duration it took to receive an Z-Wave ACK for the command.
-		cmdSuccess = cmd['cmdSuccess']	# True if an ACK was received (or no ACK expected), false if NAK.
-		nodeId = cmd['nodeId']			# Can be None!
-		endpoint = cmd['endpoint']		# Often will be None!
+    def zwaveCommandSent(self, cmd):
+        byte_list = cmd['bytes']         # List of the raw bytes just sent.
+        byte_list_str = convert_list_to_hex_str(byte_list)
+        time_delta = cmd['timeDelta']    # The time duration it took to receive an Z-Wave ACK for the command.
+        cmd_success = cmd['cmdSuccess']  # True if an ACK was received (or no ACK expected), false if NAK.
+        node_id = cmd['nodeId']          # Can be None!
+        # endpoint = cmd['endpoint']      # Often will be None!
 
-		if cmdSuccess:
-			if nodeId:
-				self.debugLog(u"sent: %s (node %03d ACK after %d milliseconds)" % (byteListStr, nodeId, timeDelta))
-			else:
-				self.debugLog(u"sent: %s (ACK after %d milliseconds)" % (byteListStr, timeDelta))
-		else:
-			self.debugLog(u"sent: %s (failed)" % (byteListStr))
+        if cmd_success:
+            if node_id:
+                self.logger.debug(f"sent: {byte_list_str} (node {node_id:03d} ACK after {time_delta} milliseconds)")
+            else:
+                self.logger.debug(f"sent: {byte_list_str} (ACK after {time_delta} milliseconds)")
+        else:
+            self.logger.debug(f"sent: {byte_list_str} (failed)")
