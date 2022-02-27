@@ -1,8 +1,8 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
 ####################
-# Copyright (c) 2018, Perceptive Automation, LLC. All rights reserved.
-# http://www.indigodomo.com
+# Copyright (c) 2022, Perceptive Automation, LLC. All rights reserved.
+# https://www.indigodomo.com
 
 try:
     import indigo
@@ -16,18 +16,18 @@ except:
 ################################################################################
 class Plugin(indigo.PluginBase):
     ########################################
-    def __init__(self, pluginId, pluginDisplayName, pluginVersion, pluginPrefs):
-        super(Plugin, self).__init__(pluginId, pluginDisplayName, pluginVersion, pluginPrefs)
+    def __init__(self, plugin_id, plugin_display_name, plugin_version, plugin_prefs):
+        super().__init__(plugin_id, plugin_display_name, plugin_version, plugin_prefs)
         self.debug = True
 
     ########################################
     def startup(self):
-        self.logger.debug(u"startup called -- subscribing to variable changes")
+        self.logger.debug("startup called -- subscribing to variable changes")
         # Subscribe to all variable changes
         indigo.variables.subscribeToChanges()
 
     def shutdown(self):
-        self.logger.debug(u"shutdown called")
+        self.logger.debug("shutdown called")
 
     ########################################
     def variableCreated(self, var):
@@ -39,26 +39,26 @@ class Plugin(indigo.PluginBase):
         :return: No return value required
         '''
         # You must call the superclass method
-        super(Plugin, self).variableCreated(var)
-        self.logger.debug(u"variableCreated called for variable '{}': value: {}".format(var.name, var.value))
+        super().variableCreated(var)
+        self.logger.debug(f"variableCreated called for variable '{var.name}': value: {var.value}")
         # Do your stuff
 
-    def variableUpdated(self, origVar, newVar):
+    def variableUpdated(self, orig_var, new_var):
         '''
         This method is called every time a variable is changed in any way (name, value, etc). Your
         plugin will likely need to inspect the variable to see if it's one you're interested in. You
         can compare the previous value to the new value if you need to.
 
         :param self: Your plugin instance
-        :param origVar: An instance of the indigo.Variable object as it was before the change
-        :param newVar: An instance of the indigo.Variable object as it is currently (after the change)
+        :param orig_var: An instance of the indigo.Variable object as it was before the change
+        :param new_var: An instance of the indigo.Variable object as it is currently (after the change)
         :return: No return value required
         '''
         # You must call the superclass method
-        super(Plugin, self).variableUpdated(origVar, newVar)
-        self.logger.debug(u"variableUpdated called")
-        self.logger.debug(u"old name: {}, old value: {}".format(origVar.name, origVar.value))
-        self.logger.debug(u"new name: {}, new value: {}".format(newVar.name, newVar.value))
+        super().variableUpdated(orig_var, new_var)
+        self.logger.debug("variableUpdated called")
+        self.logger.debug(f"old name: {orig_var.name}, old value: {orig_var.value}")
+        self.logger.debug(f"new name: {new_var.name}, new value: {new_var.value}")
         # Do your stuff
 
     def variableDeleted(self, var):
@@ -72,6 +72,6 @@ class Plugin(indigo.PluginBase):
         :return: No return value required
         '''
         # You must call the superclass method
-        super(Plugin, self).variableDeleted(var)
-        self.logger.debug(u"variableDeleted called for variable '{}': value: {}".format(var.name, var.value))
+        super().variableDeleted(var)
+        self.logger.debug(f"variableDeleted called for variable '{var.name}': value: {var.value}")
         # Do your stuff

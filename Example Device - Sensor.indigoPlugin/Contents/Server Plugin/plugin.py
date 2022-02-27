@@ -1,8 +1,8 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
 ####################
-# Copyright (c) 2021, Perceptive Automation, LLC. All rights reserved.
-# http://www.indigodomo.com
+# Copyright (c) 2022, Perceptive Automation, LLC. All rights reserved.
+# https://www.indigodomo.com
 
 import indigo
 
@@ -15,136 +15,132 @@ import random
 
 ################################################################################
 class Plugin(indigo.PluginBase):
-	########################################
-	def __init__(self, pluginId, pluginDisplayName, pluginVersion, pluginPrefs):
-		super(Plugin, self).__init__(pluginId, pluginDisplayName, pluginVersion, pluginPrefs)
-		self.debug = True
+    ########################################
+    def __init__(self, plugin_id, plugin_display_name, plugin_version, plugin_prefs):
+        super().__init__(plugin_id, plugin_display_name, plugin_version, plugin_prefs)
+        self.debug = True
 
-	########################################
-	def startup(self):
-		self.debugLog(u"startup called")
+    ########################################
+    def startup(self):
+        self.logger.debug("startup called")
 
-	def shutdown(self):
-		self.debugLog(u"shutdown called")
+    def shutdown(self):
+        self.logger.debug("shutdown called")
 
-	########################################
-	def runConcurrentThread(self):
-		try:
-			while True:
-				for dev in indigo.devices.iter("self"):
-					if not dev.enabled or not dev.configured:
-						continue
+    ########################################
+    def runConcurrentThread(self):
+        try:
+            while True:
+                for dev in indigo.devices.iter("self"):
+                    if not dev.enabled or not dev.configured:
+                        continue
 
-					# Plugins that need to poll out the status from the sensor
-					# could do so here, then broadcast back the new values to the
-					# Indigo Server via updateStateOnServer. For this example, we
-					# could toggle the onOffState every 2 seconds. If the sensor
-					# always broadcasts out changes (or is just 1-way), then this
-					# entire runConcurrentThread() method can be deleted.
-					if dev.deviceTypeId == u"myTempSensor":
-						if dev.sensorValue is not None:
-							exampleTempFloat = random.randint(560, 880) / 10.0		# random between 56.0 and 88.0 degrees F
-							exampleTempStr = "%.1f °F" % (exampleTempFloat)
+                    # Plugins that need to poll out the status from the sensor
+                    # could do so here, then broadcast back the new values to the
+                    # Indigo Server via updateStateOnServer. For this example, we
+                    # could toggle the onOffState every 2 seconds. If the sensor
+                    # always broadcasts out changes (or is just 1-way), then this
+                    # entire runConcurrentThread() method can be deleted.
+                    if dev.deviceTypeId == "myTempSensor":
+                        if dev.sensorValue is not None:
+                            example_temp_float = random.randint(560, 880) / 10.0      # random between 56.0 and 88.0 degrees F
+                            example_temp_str = f"{example_temp_float:.1f} °F"
 
-							keyValueList = []
-							keyValueList.append({'key':'sensorValue', 'value':exampleTempFloat, 'uiValue':exampleTempStr})
-							# Override the state icon shown (in Indigo Touch and client Main Window)
-							# for this device to be the a temperature sensor:
-							if dev.onState is not None:
-								keyValueList.append({'key':'onOffState', 'value':not dev.onState})
-								dev.updateStatesOnServer(keyValueList)
-								if dev.onState:
-									dev.updateStateImageOnServer(indigo.kStateImageSel.TemperatureSensorOn)
-								else:
-									dev.updateStateImageOnServer(indigo.kStateImageSel.TemperatureSensor)
-							else:
-								dev.updateStatesOnServer(keyValueList)
-								dev.updateStateImageOnServer(indigo.kStateImageSel.TemperatureSensor)
-						elif dev.onState is not None:
-							dev.updateStateOnServer("onOffState", not dev.onState)
-							dev.updateStateImageOnServer(indigo.kStateImageSel.Auto)
-						else:
-							dev.updateStateImageOnServer(indigo.kStateImageSel.Auto)
-				self.sleep(2)
-		except self.StopThread:
-			pass	# Optionally catch the StopThread exception and do any needed cleanup.
+                            key_val_list = []
+                            key_val_list.append({'key':'sensorValue', 'value':example_temp_float, 'uiValue':example_temp_str})
+                            # Override the state icon shown (in Indigo Touch and client Main Window)
+                            # for this device to be the a temperature sensor:
+                            if dev.onState is not None:
+                                key_val_list.append({'key':'onOffState', 'value':not dev.onState})
+                                dev.updateStatesOnServer(key_val_list)
+                                if dev.onState:
+                                    dev.updateStateImageOnServer(indigo.kStateImageSel.TemperatureSensorOn)
+                                else:
+                                    dev.updateStateImageOnServer(indigo.kStateImageSel.TemperatureSensor)
+                            else:
+                                dev.updateStatesOnServer(key_val_list)
+                                dev.updateStateImageOnServer(indigo.kStateImageSel.TemperatureSensor)
+                        elif dev.onState is not None:
+                            dev.updateStateOnServer("onOffState", not dev.onState)
+                            dev.updateStateImageOnServer(indigo.kStateImageSel.Auto)
+                        else:
+                            dev.updateStateImageOnServer(indigo.kStateImageSel.Auto)
+                self.sleep(2)
+        except self.StopThread:
+            pass    # Optionally catch the StopThread exception and do any needed cleanup.
 
-	########################################
-	def validateDeviceConfigUi(self, valuesDict, typeId, devId):
-		return (True, valuesDict)
+    ########################################
+    def validateDeviceConfigUi(self, values_dict, type_id, dev_id):
+        return (True, values_dict)
 
-	########################################
-	def deviceStartComm(self, dev):
-		# Called when communication with the hardware should be started.
-		pass
+    ########################################
+    def deviceStartComm(self, dev):
+        # Called when communication with the hardware should be started.
+        pass
 
-	def deviceStopComm(self, dev):
-		# Called when communication with the hardware should be shutdown.
-		pass
+    def deviceStopComm(self, dev):
+        # Called when communication with the hardware should be shutdown.
+        pass
 
-	########################################
-	# Sensor Action callback
-	######################
-	def actionControlSensor(self, action, dev):
-		###### TURN ON ######
-		# Ignore turn on/off/toggle requests from clients since this is a read-only sensor.
-		if action.sensorAction == indigo.kSensorAction.TurnOn:
-			indigo.server.log(u"ignored \"%s\" %s request (sensor is read-only)" % (dev.name, "on"))
-			# But we could request a sensor state update if we wanted like this:
-			# dev.updateStateOnServer("onOffState", True)
+    ########################################
+    # Sensor Action callback
+    ######################
+    def actionControlSensor(self, action, dev):
+        ###### TURN ON ######
+        # Ignore turn on/off/toggle requests from clients since this is a read-only sensor.
+        if action.sensorAction == indigo.kSensorAction.TurnOn:
+            self.logger.info(f"ignored \"{dev.name}\" on request (sensor is read-only)")
+            # But we could request a sensor state update if we wanted like this:
+            # dev.updateStateOnServer("onOffState", True)
 
-		###### TURN OFF ######
-		# Ignore turn on/off/toggle requests from clients since this is a read-only sensor.
-		elif action.sensorAction == indigo.kSensorAction.TurnOff:
-			indigo.server.log(u"ignored \"%s\" %s request (sensor is read-only)" % (dev.name, "off"))
-			# But we could request a sensor state update if we wanted like this:
-			# dev.updateStateOnServer("onOffState", False)
+        ###### TURN OFF ######
+        # Ignore turn on/off/toggle requests from clients since this is a read-only sensor.
+        elif action.sensorAction == indigo.kSensorAction.TurnOff:
+            self.logger.info(f"ignored \"{dev.name}\" off request (sensor is read-only)")
+            # But we could request a sensor state update if we wanted like this:
+            # dev.updateStateOnServer("onOffState", False)
 
-		###### TOGGLE ######
-		# Ignore turn on/off/toggle requests from clients since this is a read-only sensor.
-		elif action.sensorAction == indigo.kSensorAction.Toggle:
-			indigo.server.log(u"ignored \"%s\" %s request (sensor is read-only)" % (dev.name, "toggle"))
-			# But we could request a sensor state update if we wanted like this:
-			# dev.updateStateOnServer("onOffState", not dev.onState)
+        ###### TOGGLE ######
+        # Ignore turn on/off/toggle requests from clients since this is a read-only sensor.
+        elif action.sensorAction == indigo.kSensorAction.Toggle:
+            self.logger.info(f"ignored \"{dev.name}\" toggle request (sensor is read-only)")
+            # But we could request a sensor state update if we wanted like this:
+            # dev.updateStateOnServer("onOffState", not dev.onState)
 
-	########################################
-	# General Action callback
-	######################
-	def actionControlUniversal(self, action, dev):
-		###### BEEP ######
-		if action.deviceAction == indigo.kUniversalAction.Beep:
-			# Beep the hardware module (dev) here:
-			# ** IMPLEMENT ME **
-			indigo.server.log(u"sent \"%s\" %s" % (dev.name, "beep request"))
+    ########################################
+    # General Action callback
+    ######################
+    def actionControlUniversal(self, action, dev):
+        ###### BEEP ######
+        if action.deviceAction == indigo.kUniversalAction.Beep:
+            # Beep the hardware module (dev) here:
+            # ** IMPLEMENT ME **
+            self.logger.info(f"sent \"{dev.name}\" beep request")
 
-		###### STATUS REQUEST ######
-		elif action.deviceAction == indigo.kUniversalAction.RequestStatus:
-			# Query hardware module (dev) for its current status here:
-			# ** IMPLEMENT ME **
-			indigo.server.log(u"sent \"%s\" %s" % (dev.name, "status request"))
+        ###### STATUS REQUEST ######
+        elif action.deviceAction == indigo.kUniversalAction.RequestStatus:
+            # Query hardware module (dev) for its current status here:
+            # ** IMPLEMENT ME **
+            self.logger.info(f"sent \"{dev.name}\" status request")
 
-	########################################
-	# Custom Plugin Action callbacks (defined in Actions.xml)
-	######################
-	def setBacklightBrightness(self, pluginAction, dev):
-		try:
-			newBrightness = int(pluginAction.props.get(u"brightness", 100))
-		except ValueError:
-			# The int() cast above might fail if the user didn't enter a number:
-			indigo.server.log(u"set backlight brightness action to device \"%s\" -- invalid brightness value" % (dev.name,), isError=True)
-			return
-
-		# Command hardware module (dev) to set backlight brightness here:
-		# ** IMPLEMENT ME **
-		sendSuccess = True		# Set to False if it failed.
-
-		if sendSuccess:
-			# If success then log that the command was successfully sent.
-			indigo.server.log(u"sent \"%s\" %s to %d" % (dev.name, "set backlight brightness", newBrightness))
-
-			# And then tell the Indigo Server to update the state:
-			dev.updateStateOnServer("backlightBrightness", newBrightness)
-		else:
-			# Else log failure but do NOT update state on Indigo Server.
-			indigo.server.log(u"send \"%s\" %s to %d failed" % (dev.name, "set backlight brightness", newBrightness), isError=True)
-
+    ########################################
+    # Custom Plugin Action callbacks (defined in Actions.xml)
+    ######################
+    def set_backlight_brightness(self, plugin_action, dev):
+        try:
+            new_brightness = int(plugin_action.props.get("brightness", 100))
+        except ValueError:
+            # The int() cast above might fail if the user didn't enter a number:
+            self.logger.error(f"set backlight brightness action to device \"{dev.name}\" -- invalid brightness value")
+            return
+        # Command hardware module (dev) to set backlight brightness here:
+        # FIXME: add implementation here
+        send_success = True     # Set to False if it failed.
+        if send_success:
+            # If success then log that the command was successfully sent.
+            self.logger.info(f"sent \"{dev.name}\" set backlight brightness to {new_brightness}")
+            # And then tell the Indigo Server to update the state:
+            dev.updateStateOnServer("backlightBrightness", new_brightness)
+        else:
+            # Else log failure but do NOT update state on Indigo Server.
+            self.logger.error(f"send \"{dev.name}\" set backlight brightness to {new_brightness} failed")
