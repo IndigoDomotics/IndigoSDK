@@ -1,4 +1,12 @@
 **Updating to API version 3.0 (Python 3)** - random things we've run across and definitely not exhaustive
+- `print` statement change - in python 3 it requires that the string be enclosed in parens:
+  ```python
+  # Python 2:
+  print "some string here"
+  # Python 2 & 3:
+  print("some string here")
+  ```
+
 
 - Exception declarations 
 
