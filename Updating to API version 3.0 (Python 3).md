@@ -1,4 +1,15 @@
 **Updating to API version 3.0 (Python 3)** - random things we've run across and definitely not exhaustive
+- `imports` implicit imports are no longer honored in the way they were in Python 2. 
+  Python [PEP 328](https://peps.python.org/pep-0328/) explains the issues with implicit (relative) imports. 
+  See also [Package Relative Imports](https://docs.python.org/3/reference/import.html#package-relative-imports)
+  ```python
+  # Python 2:
+  import foo
+  # Python 3:
+  from .foo import *
+  from .foo import (bar, baz)
+  ```
+
 - `print` statement change - in python 3 it requires that the string be enclosed in parens:
   ```python
   # Python 2:
@@ -6,7 +17,6 @@
   # Python 2 & 3:
   print("some string here")
   ```
-
 
 - Exception declarations 
 
@@ -28,8 +38,6 @@
   # In API versions >= 3.0:
   import json
   ```
-
-  
 
 - unicode is no longer a type, so this fails:
 
@@ -59,8 +67,6 @@
           return getattr(indigo.kStateImageSel, "None")
   ```
 
-  
-
 - **`socket.error`** is aliased to `OSError` (and it's deprecated anyway), though **`socket.timeout`** remains. There is now a top-level exception called **`ConnectionResetError`** which may be what you were looking for: also **`ConnectionRefusedError`**. Just don't get fooled if you try to subscript what you think is a `socket.error` only to get a message about OSError not being subscriptable...
 
 - **socket** communication now uses the `bytes` data type rather than `str` (because `str` is now unicode). If your plugin uses socket communications, you are going to need to make sure that you encode/decode appropriately in the code that surrounds your socket communication. If you have a string (like json for instance), then you'll need to encode that `str` into `bytes`. Likewise, when you receive something from a socket you'll need to decode those `bytes` into a `str`. Simple example:
@@ -82,8 +88,6 @@
   >>> "str: {}".format(b.decode("utf8"))
   'str: Testing special characters like é, ç, etc'
   ```
-
-  
 
 - Division results on integers can result in a float: 
 
@@ -131,4 +135,3 @@
 - `dict.iteritems()` is deprecated, `dict.items()` works just as well in both python 2 & 3 (same for all the iter* functions on dict and list objects).
 
 - `pylint -py3k` may give you this error: `round built-in referenced (round-builtin)`. This warning can safely be ignored since it's primarily just a reminder that the [algorithm for calculating how an exact halfway cases](https://docs.python.org/3/whatsnew/3.0.html#builtins) has changed in python 3.
-
