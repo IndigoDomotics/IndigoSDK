@@ -4,8 +4,13 @@
         <Name>Get Device Info</Name>
         <CallbackMethod>get_device_info</CallbackMethod>
         <ConfigUI>
-            <Field id="format" type="textfield">
-                <Label>Format to print to Event Log</Label>
+            <Field id="format" type="menu" defaultValue="json">
+                <Label>Format to print to Event Log: </Label>
+                <List>
+                    <Option value="json">JSON</Option>
+                    <Option value="yaml">YAML</Option>
+                    <Option value="xml">XML</Option>
+                </List>
             </Field>
         </ConfigUI>
     </Action>

@@ -16,4 +16,4 @@ Included in this SDK are several Indigo Plugin Examples. These examples include 
 
 For help with plugin development, or to report any API problems or requests, join us on our [active and helpful developer forum.](https://forums.indigodomo.com/viewforum.php?f=18)
 
-Copyright © 2022 Perceptive Automation, LLC. All rights reserved.
+Copyright © 2023 Perceptive Automation, LLC. All rights reserved.
