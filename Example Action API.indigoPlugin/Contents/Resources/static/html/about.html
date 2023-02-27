@@ -24,5 +24,11 @@ if plugin.isEnabled():
     # reply is an indigo.Dict, with keys "status" as a boolean representing whether it's a valid device and "deviceInfo"
     # which contains (in this case) the XML that represents the device.
 </pre>
+<p>
+    Note that this example allows the action to be executed via UI configuration or via scripting. However, if your action
+    only makes sense when executed via scripting, or you just don't want it exposed in the Action UI, then you can flag
+    the action has hidden by including a uiPath with a value of "hidden":
+    <pre>&ltAction id="get_device_info" deviceFilter="indigo.devices" uiPath="hidden"&gt</pre>
+</p>
 </body>
 </html>
