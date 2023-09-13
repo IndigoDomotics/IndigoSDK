@@ -1,120 +1,228 @@
-#! /usr/bin/env python
-# -*- coding: utf-8 -*-
 ####################
-# Copyright (c) 2022, Perceptive Automation, LLC. All rights reserved.
+# Copyright (c) 2023, Indigo Domotics. All rights reserved.
 # https://www.indigodomo.com
+try:
+    # This is primarily for IDEs - the indigo package is always included when a plugin is started.
+    import indigo
+except:
+    pass
 
-import indigo
-
-# Note the "indigo" module is automatically imported and made available inside
-# our global name space by the host process.
+DIVIDER_WIDTH = 50  # used to determine the width of the section/element dividers in the event log
+LABEL_WIDTH = 16  # used to right-justify element labels
 
 ################################################################################
 class Plugin(indigo.PluginBase):
     ########################################
-    def __init__(self, plugin_id, plugin_display_name, plugin_version, plugin_prefs):
-        super().__init__(plugin_id, plugin_display_name, plugin_version, plugin_prefs)
+    def __init__(
+            self: indigo.PluginBase,
+            plugin_id: str,
+            plugin_display_name: str,
+            plugin_version: str,
+            plugin_prefs: indigo.Dict,
+            **kwargs: dict
+    ) -> None:
+        """
+        The init method that is called when a plugin is first instantiated.
+
+        :param plugin_id: the ID string of the plugin from Info.plist
+        :param plugin_display_name: the name string of the plugin from Info.plist
+        :param plugin_version: the version string from Info.plist
+        :param plugin_prefs: an indigo.Dict containing the prefs for the plugin
+        :param kwargs: passthrough for any other keyword args
+        :return: None
+        """
+        super().__init__(plugin_id, plugin_display_name, plugin_version, plugin_prefs, **kwargs)
 
     ########################################
     # IOM logging methods
     ####################
-    def log_list_divider(self, section_name):
-        self.logger.info("===================================================")
+    def log_elem_divider(self: indigo.PluginBase, character: str = "-") -> None:
+        """
+        Clever way of generating a section divider, something like:
+          --------------------------------------------------
+
+        :param character: the character to use for the divider, default to dash.
+        :return: None
+        """
+        self.logger.info("".join([character for x in range(DIVIDER_WIDTH)]))
+
+    def log_list_divider(self: indigo.PluginBase, section_name: str) -> None:
+        """
+        This method writes out a header for a new section into the log file.
+
+        :param section_name: name of the section to print
+        :return: None
+        """
+        self.log_elem_divider("=")
         self.logger.info(section_name)
         self.log_elem_divider()
 
-    def log_elem_divider(self):
-        self.logger.info("---------------------------------------------------")
+    def log_element(self: indigo.PluginBase, label: str, value: any) -> None:
+        """
+        Simple method to log a formatted value.
 
-    def log_base_elem(self, elem, folders):
-        self.logger.info(f"        INSTANCE: {elem.__class__.__name__}")
+        :param label: the label to use for this log line
+        :param value: the value to use for this log line
+        :return: None
+        """
+        self.logger.info(f"{label.upper() : >{LABEL_WIDTH}}:  {value}")
+
+    def log_base_elem(self: indigo.PluginBase, elem: any, folders: indigo.List) -> None:
+        """
+        Method to log a common parts of an element.
+
+        :param elem: an Indigo object instance: device, trigger, action group, etc.
+        :param folders: the list of folders available for instance type
+        :return: Non e
+        """
+        self.log_element("instance", elem.__class__.__name__)
         if len(elem.description) > 0:
-            self.logger.info(f"     DESCRIPTION:  {elem.description}")
+            self.log_element("description", elem.description)
         if folders and elem.folderId != 0:
-            self.logger.info(f"       IN FOLDER:  {folders.getName(elem.folderId)}")
-        self.logger.info(f"  REMOTE DISPLAY:  {elem.remoteDisplay}")
+            self.log_element("in folder", folders.getName(elem.folderId))
+        self.log_element("remote display", elem.remoteDisplay)
 
-    def log_base_folder(self, elem):
+    def log_base_folder(self: indigo.PluginBase, elem: any) -> None:
+        """
+        Log a folder's common parts.
+
+        :param elem: a folder instance
+        :return: None
+        """
         if len(elem.description) > 0:
-            self.logger.info(f"     DESCRIPTION:  {elem.description}")
-        self.logger.info(f"  REMOTE DISPLAY:  {elem.remoteDisplay}")
+            self.log_element("description", elem.description)
+        self.log_element("remote display", elem.remoteDisplay)
 
     ########################################
-    def log_device_base(self, elem):
+    def log_device_base(self: indigo.PluginBase, elem: any) -> None:
+        """
+        Log the common device bits for every device.
+
+        :param elem: a device instance
+        :return: None
+        """
         self.log_base_elem(elem, indigo.devices.folders)
-        self.logger.info(f"        PROTOCOL:  {elem.protocol}")
-        self.logger.info(f"      MODEL NAME:  {elem.model}")
-        self.logger.info(f"         ADDRESS:  {elem.address}")
+        self.log_element("protocol", elem.protocol)
+        self.log_element("model name", elem.model)
+        self.log_element("address", (elem.address or "--"))
         if elem.protocol == indigo.kProtocol.Insteon and elem.buttonGroupCount > 0:
-            self.logger.info(f"    BUTTON COUNT:  {elem.buttonGroupCount}")
-        self.logger.info(f"    LAST CHANGED:  {elem.lastChanged}")
+            self.log_element("button count", elem.buttonGroupCount)
+        self.log_element("last changed", elem.lastChanged)
 
-        supports = ""
-        if elem.supportsAllLightsOnOff:
-            supports += "AllLightsOnOff "
-        if elem.supportsAllOff:
-            supports += "AllOff "
-        if elem.supportsStatusRequest:
-            supports += "StatusRequest "
-        if len(supports) == 0:
+        supported_props: list = []
+        # This is just a subset of supports* properties that a device can have.
+        property_list = ["supportsColor", "supportsOnState", "supportsEnergyMeter", "supportsPowerMeter", "supportsStatusRequest"]
+        for property in property_list:
+            supports_property = getattr(elem, property, False)
+            if supports_property:
+                supported_props.append(property)
+        if len(supported_props) == 0:
             supports = "--"
-        self.logger.info(f"        SUPPORTS:  {supports}")
+        else:
+            supports = ", ".join(supported_props)
+        self.log_element("supports", supports)
 
     ####################
-    def log_device_sensor(self, elem):
+    def log_device_sensor(self: indigo.PluginBase, elem: any) -> None:
+        """
+        Log sensor states.
+
+        :param elem: a sensor device
+        :return: None
+        """
         self.log_device_base(elem)
-        self.logger.info(f"           IS ON:  {elem.onState}")
+        if elem.supportsOnState:
+            self.log_element("is on", elem.onState)
+        if elem.supportsSensorValue:
+            self.log_element("value", elem.sensorValue)
 
     ####################
-    def log_device_relay(self, elem):
+    def log_device_relay(self: indigo.PluginBase, elem: any) -> None:
+        """
+        Log relay (on/off) device stuff
+
+        :param elem: a relay device instance
+        :return: None
+        """
         self.log_device_base(elem)
-        self.logger.info(f"           IS ON:  {elem.onState}")
+        self.log_element("is on", elem.onState)
 
     ####################
-    def log_device_dimmer(self, elem):
+    def log_device_dimmer(self: indigo.PluginBase, elem: any) -> None:
+        """
+        Log dimmer info
+
+        :param elem: dimmer device
+        :return: None
+        """
+        # All dimmer devices are also relay devices, so log that information first
         self.log_device_relay(elem)
-        self.logger.info(f"      BRIGHTNESS:  {elem.brightness}")
+        self.log_element("brightness", elem.brightness)
 
     ####################
-    def log_device_multi_io(self, elem):
+    def log_device_multi_io(self: indigo.PluginBase, elem: any) -> None:
+        """
+        Log I/O device info
+
+        :param elem: i/o device
+        :return: None
+        """
         self.log_device_base(elem)
         if elem.analogInputCount > 0:
-            self.logger.info(f"   ANALOG INPUTS:  {elem.analogInputs}")
+            self.log_element("analog inputs", elem.analogInputs)
         if elem.binaryInputCount > 0:
-            self.logger.info(f"   BINARY INPUTS:  {elem.binaryInputs}")
+            self.log_element("binary inputs", elem.binaryInputs)
         if elem.sensorInputCount > 0:
-            self.logger.info(f"   SENSOR INPUTS:  {elem.sensorInputs}")
+            self.log_element("sensor inputs", elem.sensorInputs)
         if elem.binaryOutputCount > 0:
-            self.logger.info(f"  BINARY OUTPUTS:  {elem.binaryOutputs}")
+            self.log_element("binary outputs", elem.binaryOutputs)
 
     ####################
-    def log_device_sprinkler(self, elem):
+    def log_device_sprinkler(self: indigo.PluginBase, elem: any) -> None:
+        """
+        Log sprinkler info
+
+        :param elem: sprinkler device
+        :return: None
+        """
         self.log_device_base(elem)
-        self.logger.info(f"      ZONE COUNT:  {elem.zoneCount}")
-        self.logger.info(f"      ZONE NAMES:  {elem.zoneNames}")
-        self.logger.info(f"   MAX DURATIONS:  {elem.zoneMaxDurations}")
+        self.log_element("zone count", elem.zoneCount)
+        self.log_element("zone names", elem.zoneNames)
+        self.log_element("max durations", elem.zoneMaxDurations)
         if len(elem.zoneScheduledDurations) > 0:
-            self.logger.info(f" SCHEDULED DURA.:  {elem.zoneScheduledDurations}")
+            self.log_element("scheduled dura.", elem.zoneScheduledDurations)
         if elem.activeZone:
-            self.logger.info(f"     ACTIVE ZONE:  {elem.zoneNames[elem.activeZone]}")
+            self.log_element("active zone", elem.zoneNames[elem.activeZone])
 
     ####################
-    def log_device_thermostat(self, elem):
+    def log_device_thermostat(self: indigo.PluginBase, elem: any) -> None:
+        """
+        Log thermostat info
+
+        :param elem: thermostat device
+        :return: None
+        """
         self.log_device_base(elem)
-        self.logger.info(f"       HVAC MODE:  {elem.hvacMode}")
-        self.logger.info(f"        FAN MODE:  {elem.fanMode}")
-        self.logger.info(f"   COOL SETPOINT:  {elem.coolSetpoint}")
-        self.logger.info(f"   HEAT SETPOINT:  {elem.heatSetpoint}")
-        self.logger.info(f"      TEMP COUNT:  {elem.temperatureSensorCount}")
-        self.logger.info(f"           TEMPS:  {elem.temperatures}")
-        self.logger.info(f"  HUMIDITY COUNT:  {elem.humiditySensorCount}")
-        self.logger.info(f"        HUMIDITY:  {elem.humidities}")
-        self.logger.info(f"      COOL IS ON:  {elem.coolIsOn}")
-        self.logger.info(f"      HEAT IS ON:  {elem.heatIsOn}")
-        self.logger.info(f"       FAN IS ON:  {elem.fanIsOn}")
+        self.log_element("hvac mode", elem.hvacMode)
+        self.log_element("fan mode", elem.fanMode)
+        self.log_element("cool setpoint", elem.coolSetpoint)
+        self.log_element("heat setpoint", elem.heatSetpoint)
+        self.log_element("temp count", elem.temperatureSensorCount)
+        self.log_element("temps", elem.temperatures)
+        self.log_element("humidity count", elem.humiditySensorCount)
+        self.log_element("humidities", elem.humidities)
+        self.log_element("cool is on", elem.coolIsOn)
+        self.log_element("heat is on", elem.heatIsOn)
+        self.log_element("fan is on", elem.fanIsOn)
 
     ####################
-    def log_device(self, elem):
+    def log_device(self: indigo.PluginBase, elem: any) -> None:
+        """
+        Method to log device details based on the device type
+
+        :param elem: indigo device instance
+        :return: None
+        """
         if isinstance(elem, indigo.DimmerDevice):
             self.log_device_dimmer(elem)
         elif isinstance(elem, indigo.RelayDevice):
@@ -131,159 +239,196 @@ class Plugin(indigo.PluginBase):
             self.log_device_base(elem)
 
     ########################################
-    def log_event_base(self, elem, folders):
+    def log_event_base(self: indigo.PluginBase, elem: any, folders) -> None:
         self.log_base_elem(elem, folders)
-        self.logger.info(f"         ENABLED:  {elem.enabled}")
-        self.logger.info(f"          UPLOAD:  {elem.upload}")
+        self.log_element("enabled", elem.enabled)
+        self.log_element("upload", elem.upload)
         if elem.suppressLogging:
-            self.logger.info("SUPPRESS LOGGING: True")
+            self.log_element("suppress logging", "True")
         # TODO: Need to add conditional tree and action list traversal here.
 
     ####################
-    def log_trigger(self, elem):
+    def log_trigger(self: indigo.PluginBase, elem: any) -> None:
         self.log_event_base(elem, indigo.triggers.folders)
 
         if isinstance(elem, indigo.DeviceStateChangeTrigger):
-            self.logger.info(f"          DEVICE:  {indigo.devices.getName(elem.deviceId)}")
-            self.logger.info(f"     CHANGE TYPE:  {elem.stateChangeType}")
-            self.logger.info(f"    SELECTOR KEY:  {elem.stateSelector}")
+            self.log_element("device", indigo.devices.getName(elem.deviceId))
+            self.log_element("change type", elem.stateChangeType)
+            self.log_element("selector key", elem.stateSelector)
             if elem.stateSelectorIndex > 0:
-                self.logger.info(f"  SELECTOR INDEX:  {elem.stateSelectorIndex}")
+                self.log_element("selector index", elem.stateSelectorIndex)
             if len(elem.stateValue) > 0:
-                self.logger.info(f"     STATE VALUE:  {elem.stateValue}")
+                self.log_element("state value", elem.stateValue)
         elif isinstance(elem, indigo.VariableValueChangeTrigger):
-            self.logger.info(f"        VARIABLE:  {indigo.variables.getName(elem.variableId)}")
-            self.logger.info(f"     CHANGE TYPE:  {elem.variableChangeType}")
+            self.log_element("variable", indigo.variables.getName(elem.variableId))
+            self.log_element("change type", elem.variableChangeType)
             if len(elem.variableValue) > 0:
-                self.logger.info(f"  VARIABLE VALUE:  {elem.variableValue}")
+                self.log_element("variable value", elem.variableValue)
         elif isinstance(elem, indigo.InsteonCommandReceivedTrigger):
-            self.logger.info(f" INSTEON COMMAND:  {elem.command}")
+            self.log_element("insteon command", elem.command)
+            self.log_element("source type", elem.commandSourceType)
             self.logger.info(f"     SOURCE TYPE:  {elem.commandSourceType}")
             if elem.commandSourceType == indigo.kDeviceSourceType.DeviceId:
-                self.logger.info(f"          DEVICE:  {indigo.devices.getName(elem.deviceId)}")
+                self.log_element("device", indigo.devices.getName(elem.deviceId))
+                self.log_element("group num", elem.buttonOrGroup)
             self.logger.info(f"       GROUP NUM:  {elem.buttonOrGroup}")
         elif isinstance(elem, indigo.X10CommandReceivedTrigger):
-            self.logger.info(f"     X10 COMMAND:  {elem.command}")
-            self.logger.info(f"     SOURCE TYPE:  {elem.commandSourceType}")
+            self.log_element("X10 command", elem.command)
+            self.log_element("source type", elem.commandSourceType)
             if elem.commandSourceType == indigo.kDeviceSourceType.DeviceId:
-                self.logger.info(f"          DEVICE:  {indigo.devices.getName(elem.deviceId)}")
+                self.log_element("device", indigo.devices.getName(elem.deviceId))
             elif elem.commandSourceType == indigo.kDeviceSourceType.RawAddress:
-                self.logger.info(f"         ADDRESS:  {elem.address}")
+                self.log_element("address", elem.address)
             elif elem.command == indigo.kX10Cmd.AvButtonPressed:
-                self.logger.info(f"      A/V BUTTON:  {elem.avButton}")
+                self.log_element("a/v button", elem.avButton)
         elif isinstance(elem, indigo.EmailReceivedTrigger):
-            self.logger.info(f"    EMAIL FILTER:  {elem.emailFilter}")
+            self.log_element("email filter", elem.emailFilter)
             if elem.emailFilter == indigo.kEmailFilter.MatchEmailFields:
-                self.logger.info(f"     FROM FILTER:  {elem.emailFrom}")
-                self.logger.info(f"  SUBJECT FILTER:  {elem.emailSubject}")
+                self.log_element("from filter", elem.emailFrom)
+                self.log_element("subject filter", elem.emailSubject)
 
     ####################
-    def log_schedule(self, elem):
+    def log_schedule(self: indigo.PluginBase, elem: any) -> None:
         self.log_event_base(elem, indigo.schedules.folders)
-        self.logger.info(f"       DATE TYPE:  {elem.dateType}")
-        self.logger.info(f"       TIME TYPE:  {elem.timeType}")
+        self.log_element("date type", elem.dateType)
+        self.log_element("time type", elem.timeType)
         if elem.dateType == indigo.kDateType.Absolute and elem.timeType == indigo.kTimeType.Absolute:
-            self.logger.info(f"   DATE AND TIME:  {elem.absoluteDateTime}")
+            self.log_element("date and time", elem.absoluteDateTime)
         elif elem.dateType == indigo.kDateType.Absolute:
-            self.logger.info(f"   ABSOLUTE DATE:  {elem.absoluteDate.date()}")
+            self.log_element("absolute date", elem.absoluteDate.date())
         elif elem.timeType == indigo.kTimeType.Absolute:
-            self.logger.info(f"   ABSOLUTE TIME:  {elem.absoluteTime.time()}")
+            self.log_element("absolute time", elem.absoluteTime.time())
         if elem.sunDelta > 0:
-            self.logger.info(f"       SUN DELTA:  {elem.sunDelta} seconds")
+            self.log_element("sun delta", f"{elem.sunDelta} seconds")
         if elem.randomizeBy > 0:
-            self.logger.info(f"    RANDOMIZE BY:  {elem.randomizeBy} seconds")
+            self.log_element("randomize by", f"{elem.randomizeBy} seconds")
         try:
-            self.logger.info(f"  NEXT EXECUTION:  {elem.nextExecution}")
+            self.log_element("next execution", elem.nextExecution)
         except:
-            self.logger.info("  NEXT EXECUTION:  - none scheduled -")
+            self.log_element("next execution", "- none scheduled -")
         # TODO: Need to log additional properties after they are implemented here.
 
     ####################
-    def log_action_group(self, elem):
+    def log_action_group(self: indigo.PluginBase, elem: any):
         self.log_base_elem(elem, indigo.actionGroups.folders)
         # TODO: Need to add action list traversal here.
 
     ####################
-    def log_control_page(self, elem):
+    def log_control_page(self: indigo.PluginBase, elem: any) -> None:
         self.log_base_elem(elem, indigo.controlPages.folders)
-        self.logger.info(f"     HIDE TABBAR:  {elem.hideTabBar}")
+        self.log_element("hide tabbar", elem.hideTabBar)
         if len(elem.backgroundImage) > 0:
-            self.logger.info(f"BACKGROUND IMAGE:  {elem.backgroundImage}")
+            self.log_element("background image", elem.backgroundImage)
         # TODO: Need to log additional properties after they are implemented here.
         # TODO: Need to add control list traversal here.
 
     ####################
-    def log_variable(self, elem):
+    def log_variable(self: indigo.PluginBase, elem: any) -> None:
         self.log_base_elem(elem, indigo.variables.folders)
-        self.logger.info(f"           VALUE:  {elem.value}")
+        self.log_element("value", elem.value)
         if elem.readOnly:
-            self.logger.info("       READ ONLY: True")
+            self.log_element("read only", "True")
 
     ########################################
     # Actions defined in MenuItems.xml:
     ####################
-    def traverse_devices(self):
+    def traverse_devices(self: indigo.PluginBase) -> None:
+        """
+        This is called when the Log Devices menu item is selected.
+
+        :return: None
+        """
         self.log_list_divider("DEVICES")
         for folder in indigo.devices.folders:
-            self.logger.info(f"          FOLDER:  {folder.name}")
+            self.log_element("folder", folder.name)
             self.log_base_folder(folder)
         for elem in indigo.devices:
             self.log_elem_divider()
-            self.logger.info(f"          DEVICE:  {elem.name}")
+            self.log_element("device", elem.name)
             self.log_device(elem)
 
-    def traverse_triggers(self):
+    def traverse_triggers(self: indigo.PluginBase) -> None:
+        """
+        This is called when the Log Triggers menu item is selected.
+
+        :return: None
+        """
         self.log_list_divider("TRIGGERS")
         for folder in indigo.triggers.folders:
-            self.logger.info(f"          FOLDER:  {folder.name}")
+            self.log_element("folder", folder.name)
             self.log_base_folder(folder)
         for elem in indigo.triggers:
             self.log_elem_divider()
-            self.logger.info(f"         TRIGGER:  {elem.name}")
+            self.log_element("trigger", elem.name)
             self.log_trigger(elem)
 
-    def traverse_schedules(self):
+    def traverse_schedules(self: indigo.PluginBase) -> None:
+        """
+        This is called when the Log Schedules menu item is selected.
+
+        :return: None
+        """
         self.log_list_divider("SCHEDULES")
         for folder in indigo.schedules.folders:
-            self.logger.info(f"          FOLDER:  {folder.name}")
+            self.log_element("folder", folder.name)
             self.log_base_folder(folder)
         for elem in indigo.schedules:
             self.log_elem_divider()
-            self.logger.info(f"        SCHEDULE:  {elem.name}")
+            self.log_element("schedule", elem.name)
             self.log_schedule(elem)
 
-    def traverse_action_groups(self):
+    def traverse_action_groups(self: indigo.PluginBase) -> None:
+        """
+        This is called when the Log Action Groups menu item is selected.
+
+        :return: None
+        """
         self.log_list_divider("ACTION GROUPS")
         for folder in indigo.actionGroups.folders:
-            self.logger.info(f"          FOLDER:  {folder.name}")
+            self.log_element("folder", folder.name)
             self.log_base_folder(folder)
         for elem in indigo.actionGroups:
             self.log_elem_divider()
-            self.logger.info(f"    ACTION GROUP:  {elem.name}")
+            self.log_element("action group", elem.name)
             self.log_action_group(elem)
 
-    def traverse_control_pages(self):
+    def traverse_control_pages(self: indigo.PluginBase) -> None:
+        """
+        This is called when the Log Control Pages menu item is selected.
+
+        :return: None
+        """
         self.log_list_divider("CONTROL PAGES")
         for folder in indigo.controlPages.folders:
-            self.logger.info(f"          FOLDER:  {folder.name}")
+            self.log_element("folder", folder.name)
             self.log_base_folder(folder)
         for elem in indigo.controlPages:
             self.log_elem_divider()
-            self.logger.info(f"    CONTROL PAGE:  {elem.name}")
+            self.log_element("control page", elem.name)
             self.log_control_page(elem)
 
-    def traverse_variables(self):
+    def traverse_variables(self: indigo.PluginBase) -> None:
+        """
+        This is called when the Log Variables menu item is selected.
+
+        :return: None
+        """
         self.log_list_divider("VARIABLES")
         for folder in indigo.variables.folders:
-            self.logger.info(f"          FOLDER:  {folder.name}")
+            self.log_element("folder", folder.name)
             self.log_base_folder(folder)
         for elem in indigo.variables:
             self.log_elem_divider()
-            self.logger.info(f"        VARIABLE:  {elem.name}")
+            self.log_element("variable", elem.name)
             self.log_variable(elem)
 
     ####################
-    def traverse_database(self):
+    def traverse_database(self: indigo.PluginBase) -> None:
+        """
+        This is called when the Log Entire Database menu item is selected.
+
+        :return: None
+        """
         self.traverse_devices()
         self.traverse_triggers()
         self.traverse_schedules()

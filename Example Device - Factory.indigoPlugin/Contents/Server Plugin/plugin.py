@@ -1,29 +1,51 @@
-#! /usr/bin/env python
-# -*- coding: utf-8 -*-
 ####################
-# Copyright (c) 2022, Perceptive Automation, LLC. All rights reserved.
+# Copyright (c) 2023, Indigo Domotics. All rights reserved.
 # https://www.indigodomo.com
-
-import indigo
-
-import os
-import sys
-
-# Note the "indigo" module is automatically imported and made available inside
-# our global name space by the host process.
+try:
+    # This is primarily for IDEs - the indigo package is always included when a plugin is started.
+    import indigo
+except:
+    pass
 
 ################################################################################
 class Plugin(indigo.PluginBase):
     ########################################
-    def __init__(self, plugin_id, plugin_display_name, plugin_version, plugin_prefs):
-        super().__init__(plugin_id, plugin_display_name, plugin_version, plugin_prefs)
+    def __init__(
+            self: indigo.PluginBase,
+            plugin_id: str,
+            plugin_display_name: str,
+            plugin_version: str,
+            plugin_prefs: indigo.Dict,
+            **kwargs: dict
+    ) -> None:
+        """
+        The init method that is called when a plugin is first instantiated.
+
+        :param plugin_id: the ID string of the plugin from Info.plist
+        :param plugin_display_name: the name string of the plugin from Info.plist
+        :param plugin_version: the version string from Info.plist
+        :param plugin_prefs: an indigo.Dict containing the prefs for the plugin
+        :param kwargs: passthrough for any other keyword args
+        :return: None
+        """
+        super().__init__(plugin_id, plugin_display_name, plugin_version, plugin_prefs, **kwargs)
         self.debug = True
 
     ########################################
-    def startup(self):
+    def startup(self: indigo.PluginBase) -> None:
+        """
+        Any logic needed at startup, but after __init__ is called.
+
+        :return:
+        """
         self.logger.debug("startup called")
 
-    def shutdown(self):
+    def shutdown(self: indigo.PluginBase) -> None:
+        """
+        Any cleanup logic needed before the plugin is completely shut down.
+
+        :return: None
+        """
         self.logger.debug("shutdown called")
 
     ########################################
@@ -40,20 +62,51 @@ class Plugin(indigo.PluginBase):
     # and call dev.replaceOnServer() after modifying the .model and .subType
     # attributes to push those changes to the server.
     ####################
-    def getDeviceFactoryUiValues(self, dev_id_list):
-        values_dict = indigo.Dict()
-        error_msg_dict = indigo.Dict()
+    def getDeviceFactoryUiValues(self: indigo.PluginBase, dev_id_list: indigo.List) -> tuple:
+        """
+        You can implement this method to "prime" values that will be inserted into the device factory dialog. This
+        allows you to do calculated values beyond just the ability to specify a static default in the XML.
+
+        :param dev_id_list: list of device IDs that are in the group
+        :return: a tuple with the values_dict and error_msg_dict for the dialog
+        """
+        values_dict: indigo.Dict = indigo.Dict()
+        error_msg_dict: indigo.Dict = indigo.Dict()
         return (values_dict, error_msg_dict)
 
-    def validateDeviceFactoryUi(self, values_dict, dev_id_list):
-        errors_dict = indigo.Dict()
+    def validateDeviceFactoryUi(self: indigo.PluginBase, values_dict: indigo.Dict, dev_id_list: indigo.List) -> tuple:
+        """
+        Called when a device factory dialog needs to be validated.
+
+        :param values_dict: the dict of values from the dialog
+        :param dev_id_list: the list of grouped device IDs
+        :return: a tuple with the validation success (boolean), the values_dict and error_msg_dict for the dialog
+        """
+        errors_dict: indigo.Dict = indigo.Dict()
         return (True, values_dict, errors_dict)
 
-    def closedDeviceFactoryUi(self, values_dict, user_cancelled, dev_id_list):
+    def closedDeviceFactoryUi(self: indigo.PluginBase, values_dict: indigo.Dict, user_cancelled: bool, dev_id_list: indigo.List) -> None:
+        """
+        Called when the device factory dialog has closed (after validation return success or is canceled).
+
+        :param values_dict: the dict of values from the dialog
+        :param user_cancelled: boolean that will be true if the user canceled the dialog
+        :param dev_id_list: the list of grouped device IDs
+        :return: None
+        """
         return
 
     ####################
-    def _get_device_group_list(self, filter, values_dict, dev_id_list):
+    def _get_device_group_list(self: indigo.PluginBase, filter: str, values_dict: indigo.Dict, dev_id_list: indigo.List) -> list:
+        """
+        Generates a list of device names tuples from the dev_id_list, suitable for use when populating a UI popup menu
+        control.
+
+        :param filter: an optional filter string
+        :param values_dict: the dict of values from the dialog
+        :param dev_id_list: the list of grouped device IDs
+        :return: list of tuples, defined as (DEVICEID, DEVICENAME), to be used in a dialog popup menu control
+        """
         menu_items = []
         for dev_id in dev_id_list:
             if dev_id in indigo.devices:
@@ -64,21 +117,25 @@ class Plugin(indigo.PluginBase):
             menu_items.append((dev_id, dev_name))
         return menu_items
 
-    def _add_relay(self, values_dict, dev_id_list):
+    def _add_relay(self: indigo.PluginBase, values_dict: indigo.Dict, dev_id_list: indigo.List) -> indigo.Dict:
         newdev = indigo.device.create(indigo.kProtocol.Plugin, deviceTypeId="myRelayType")
         newdev.model = "Example Multi-Device"
         newdev.subType = "Relay"        # Manually need to set the model and subType names (for UI only)
         newdev.replaceOnServer()
         return values_dict
 
-    def _add_dimmer(self, values_dict, dev_id_list):
+    def _add_dimmer(self: indigo.PluginBase, values_dict: indigo.Dict, dev_id_list: indigo.List) -> indigo.Dict:
         newdev = indigo.device.create(indigo.kProtocol.Plugin, deviceTypeId="myDimmerType")
         newdev.model = "Example Multi-Device"
         newdev.subType = "Dimmer"       # Manually need to set the model and subType names (for UI only)
         newdev.replaceOnServer()
         return values_dict
 
-    def _add_x10_motion_sensor(self, values_dict, dev_id_list):
+    def _add_x10_motion_sensor(
+            self: indigo.PluginBase,
+            values_dict: indigo.Dict,
+            dev_id_list: indigo.List
+    ) -> indigo.Dict:
         # Not fully supported -- device groups currently should only contain
         # devices defined by the plugin. The UI doesn't properly handle showing
         # and editing X10 / INSTEON / etc. devices as part of the group.
@@ -89,7 +146,11 @@ class Plugin(indigo.PluginBase):
         # newdev.replaceOnServer()
         return values_dict
 
-    def _add_x10_sprinkler_device(self, values_dict, dev_id_list):
+    def _add_x10_sprinkler_device(
+            self: indigo.PluginBase,
+            values_dict: indigo.Dict,
+            dev_id_list: indigo.List
+    ) -> indigo.Dict:
         # Not fully supported -- device groups currently should only contain
         # devices defined by the plugin. The UI doesn't properly handle showing
         # and editing X10 / INSTEON / etc. devices as part of the group.
@@ -100,7 +161,11 @@ class Plugin(indigo.PluginBase):
         # newdev.replaceOnServer()
         return values_dict
 
-    def _remove_dimmer_devices(self, values_dict, dev_id_list):
+    def _remove_dimmer_devices(
+            self: indigo.PluginBase,
+            values_dict: indigo.Dict,
+            dev_id_list: indigo.List
+    ) -> indigo.Dict:
         for dev_id in dev_id_list:
             try:
                 dev = indigo.devices[dev_id]
@@ -110,7 +175,11 @@ class Plugin(indigo.PluginBase):
                 pass    # delete doesn't allow (throws) on root elem
         return values_dict
 
-    def _remove_relay_devices(self, values_dict, dev_id_list):
+    def _remove_relay_devices(
+            self: indigo.PluginBase,
+            values_dict: indigo.Dict,
+            dev_id_list: indigo.List
+    ) -> indigo.Dict:
         for dev_id in dev_id_list:
             try:
                 dev = indigo.devices[dev_id]
@@ -120,7 +189,11 @@ class Plugin(indigo.PluginBase):
                 pass    # delete doesn't allow (throws) on root elem
         return values_dict
 
-    def _remove_all_devices(self, values_dict, dev_id_list):
+    def _remove_all_devices(
+            self: indigo.PluginBase,
+            values_dict: indigo.Dict,
+            dev_id_list: indigo.List
+    ) -> indigo.Dict:
         for dev_id in dev_id_list:
             try:
                 indigo.device.delete(dev_id)
@@ -129,7 +202,7 @@ class Plugin(indigo.PluginBase):
         return values_dict
 
     ########################################
-    def validateDeviceConfigUi(self, values_dict, type_id, dev_id):
+    def validateDeviceConfigUi(self: indigo.PluginBase, values_dict: indigo.Dict, type_id: str, dev_id: int) -> tuple:
         return (True, values_dict)
 
     ########################################

@@ -10,11 +10,11 @@ try:
 except:
     pass
 
-import os
 from datetime import datetime
 import json
 import jinja2
 import dicttoxml
+import mimetypes
 
 NO_FILE_SPECIFIED = "No File Specified"
 
@@ -87,7 +87,7 @@ class Plugin(indigo.PluginBase):
                 try:
                     condense = props_dict.get("url_query_args", {}).get("condense-json", False)
                     if condense:
-                        reply["content"] = json.dumps(dict(device), separators=(',',':'), cls=indigo.utils.JSONDateEncoder)
+                        reply["content"] = json.dumps(dict(device), separators=(',', ':'), cls=indigo.utils.JSONDateEncoder)
                     else:
                         reply["content"] = json.dumps(dict(device), indent=4, cls=indigo.utils.JSONDateEncoder)
                 except Exception as exc:
@@ -115,6 +115,7 @@ class Plugin(indigo.PluginBase):
         the content. We just assume here it's some kind of text file. We'll look for the file in the Resources folder
         in this plugin. If it's not there, we'll return a 401.
 
+        ** IMPORTANT **
         This example is here to illustrate one way to return a file from a plugin without putting it into one of the
         directories that are automatically served within the Resources folder (see the README.txt file in the Server Plugin
         folder for details on how the Indigo Web Server can automatically serve up content from your plugin.
@@ -140,11 +141,12 @@ class Plugin(indigo.PluginBase):
             self.logger.debug(f"...looking for file: {file_path}")
         except:
             # file name wasn't specified, set a flag
+            file_name = ""
             file_path = NO_FILE_SPECIFIED
         try:
             with open(file_path, "r", encoding='utf-8') as file:
                 file_contents = file.read()
-            content_type = indigo.utils.FILE_EXTENSION_MIME_MAP.get(os.path.splitext(file_path[-1])[-1].strip("."), "text/plain")
+            content_type = mimetypes.guess_type(file_name)[0] or "text/plain"
             reply["status"] = 200
             reply["headers"] = indigo.Dict({ "Content-Type":f"{content_type}" })
             reply["content"] = file_contents

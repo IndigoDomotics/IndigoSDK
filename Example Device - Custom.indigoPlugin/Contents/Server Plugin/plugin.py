@@ -1,28 +1,44 @@
-#! /usr/bin/env python
-# -*- coding: utf-8 -*-
 ####################
-# Copyright (c) 2022, Perceptive Automation, LLC. All rights reserved.
+# Copyright (c) 2023, Indigo Domotics. All rights reserved.
 # https://www.indigodomo.com
+try:
+    # This is primarily for IDEs - the indigo package is always included when a plugin is started.
+    import indigo
+except:
+    pass
 
-import indigo
 import time
-
-# Note the "indigo" module is automatically imported and made available inside
-# our global name space by the host process.
 
 ################################################################################
 class Plugin(indigo.PluginBase):
     ########################################
-    def __init__(self, plugin_id, plugin_display_name, plugin_version, plugin_prefs):
+    def __init__(
+            self: indigo.PluginBase,
+            plugin_id: str,
+            plugin_display_name: str,
+            plugin_version: str,
+            plugin_prefs: indigo.Dict,
+            **kwargs: dict
+    ) -> None:
+        """
+        The init method that is called when a plugin is first instantiated.
+
+        :param plugin_id: the ID string of the plugin from Info.plist
+        :param plugin_display_name: the name string of the plugin from Info.plist
+        :param plugin_version: the version string from Info.plist
+        :param plugin_prefs: an indigo.Dict containing the prefs for the plugin
+        :param kwargs: passthrough for any other keyword args
+        :return: None
+        """
         super().__init__(plugin_id, plugin_display_name, plugin_version, plugin_prefs)
-        self.debug = True
-        self.time_warp_on = False
-        self.time_warp_count = 0
-        self.state_updater_dev = None
-        self.server_time_dev = None
+        self.debug: bool = True
+        self.time_warp_on: bool = False
+        self.time_warp_count: int = 0
+        self.state_updater_dev: indigo.Device = None
+        self.server_time_dev: indigo.Device = None
 
     ########################################
-    def startup(self):
+    def startup(self: indigo.PluginBase):
         self.logger.debug("startup called")
         # Most plugins that expose new device types will depend on the user
         # creating the new device from the Indigo UI (just like a native device).
@@ -56,7 +72,7 @@ class Plugin(indigo.PluginBase):
         # for this device to be the timer image icon:
         self.state_updater_dev.updateStateImageOnServer(indigo.kStateImageSel.TimerOn)
 
-    def shutdown(self):
+    def shutdown(self: indigo.PluginBase):
         self.logger.debug("shutdown called")
         key_value_list = [
             {'key': 'serverTimeSeconds', 'value': 0},
@@ -66,13 +82,17 @@ class Plugin(indigo.PluginBase):
         self.server_time_dev.updateStatesOnServer(key_value_list)
 
     ########################################
-    # If runConcurrentThread() is defined, then a new thread is automatically created
-    # and runConcurrentThread() is called in that thread after startup() has been called.
-    #
-    # runConcurrentThread() should loop forever and only return after self.stopThread
-    # becomes True. If this function returns prematurely then the plugin host process
-    # will log an error and attempt to call runConcurrentThread() again after several seconds.
-    def runConcurrentThread(self):
+    def runConcurrentThread(self: indigo.PluginBase) -> None:
+        """
+        If runConcurrentThread() is defined, then a new thread is automatically created
+        and runConcurrentThread() is called in that thread after startup() has been called.
+
+        runConcurrentThread() should loop forever and only return after self.stopThread
+        becomes True. If this function returns prematurely then the plugin host process
+        will log an error and attempt to call runConcurrentThread() again after several seconds.
+
+        :return: None
+        """
         try:
             while True:
                 server_time = indigo.server.getTime()
@@ -120,7 +140,7 @@ class Plugin(indigo.PluginBase):
     ########################################
     # Actions defined in MenuItems.xml:
     ####################
-    def time_warp(self):
+    def time_warp(self: indigo.PluginBase):
         if not self.time_warp_on:
             self.logger.info("starting mega time warp")
             self.time_warp_on = True
@@ -166,11 +186,20 @@ class Plugin(indigo.PluginBase):
         information.
     """
 
-    ####################
-    # This is the method that's called by the Add Device button in the scene
-    # device config UI.
-    ####################
-    def add_device(self, values_dict, type_id, dev_id):
+    def add_device(
+            self: indigo.PluginBase,
+            values_dict: indigo.Dict,
+            type_id: str,
+            dev_id: int
+    ) -> indigo.Dict:
+        """
+        This is the method that's called by the Add Device button in the scene device config UI.
+
+        :param values_dict: the values dict from the dialog
+        :param type_id: the device type
+        :param dev_id: the device id
+        :return: an indigo.Dict that replaces the values dict
+        """
         self.logger.debug("add_device called")
         # just making sure that they have selected a device in the source
         # list - it shouldn't be possible not to but it's safer
@@ -206,11 +235,20 @@ class Plugin(indigo.PluginBase):
             # return the new dict
             return values_dict
 
-    ####################
-    # This is the method that's called by the Delete Device button in the scene
-    # device config UI.
-    ####################
-    def delete_devices(self, values_dict, type_id, dev_id):
+    def delete_devices(
+            self: indigo.PluginBase,
+            values_dict: indigo.Dict,
+            type_id: str,
+            dev_id: int
+    ) -> indigo.Dict:
+        """
+        This is the method that's called by the Delete Device button in the scene device config UI.
+
+        :param values_dict: the values dict from the dialog
+        :param type_id: the device type
+        :param dev_id: the device id
+        :return: an indigo.Dict that replaces the values dict
+        """
         self.logger.debug("delete_devices called")
         if "memberDevices" in values_dict:
             # Get the list of devices that are already in the scene
@@ -237,11 +275,23 @@ class Plugin(indigo.PluginBase):
                 del values_dict["sourceDeviceMenu"]
             return values_dict
 
-    ####################
-    # This is the method that's called to build the source device list. Note
-    # that values_dict is read-only so any changes you make to it will be discarded.
-    ####################
-    def source_devices(self, filter_str="", values_dict=None, type_id="", target_id=0):
+    def source_devices(
+            self: indigo.PluginBase,
+            filter_str: str = "",
+            values_dict: indigo.Dict = None,
+            type_id: str = "",
+            target_id: int = 0
+    ) -> list:
+        """
+        This is the method that's called to build the source device list. Note that values_dict is read-only so any
+        changes you make to it will be discarded.
+
+        :param filter_str: unused string to filter device types
+        :param values_dict: values from the dialog
+        :param type_id: unused type of device
+        :param target_id: unused ID of the target object
+        :return: a list of device tuples in the form of (device.id, device.name)
+        """
         self.logger.debug(f"source_devices called with filter: {filter_str}  type_id: {type_id}  target_id: {target_id}")
         return_list = []
         # if values_dict doesn't exist yet - if this is a brand new device
@@ -260,12 +310,26 @@ class Plugin(indigo.PluginBase):
                 return_list.append((str(dev_id), indigo.devices.get(dev_id).name))
         return return_list
 
-    ####################
-    # This is the method that's called to build the member device list. Note
-    # that values_dict is read-only so any changes you make to it will be discarded.
-    ####################
-    def member_devices(self, filter_str="", values_dict=None, type_id="", target_id=0):
-        self.logger.debug(f"member_devices called with filter: {filter_str}  type_id: {type_id}  target_id: {target_id}")
+    def member_devices(
+            self: indigo.PluginBase,
+            filter_str: str = "",
+            values_dict: indigo.Dict = None,
+            type_id: str = "",
+            target_id: int = 0
+    ) -> list:
+        """
+        This is the method that's called to build the member device list. Note that values_dict is read-only so any
+        changes you make to it will be discarded.
+
+        :param filter_str:
+        :param values_dict:
+        :param type_id:
+        :param target_id:
+        :return:
+        """
+        self.logger.debug(
+            f"member_devices called with filter: {filter_str}  type_id: {type_id}  target_id: {target_id}"
+        )
         return_list = []
         # values_dict may be empty or None if it's a brand new device
         if values_dict and "memberDevices" in values_dict:
@@ -282,7 +346,20 @@ class Plugin(indigo.PluginBase):
         return return_list
 
     ########################################
-    def validateDeviceConfigUi(self, values_dict, type_id, dev_id):
+    def validateDeviceConfigUi(
+            self: indigo.PluginBase,
+            values_dict: indigo.Dict,
+            type_id: str,
+            dev_id: int
+    ) -> tuple:
+        """
+        Validates the config UI for a device.
+
+        :param values_dict: values for the dialog
+        :param type_id: device type id
+        :param dev_id: id of the device
+        :return: tuple of the form (True, values_dict) or (False, dict_of_errors, values_dict)
+        """
         # If the type_id is "scene", we want to clear the selections on both
         # dynamic lists so that they're not stored since we really don't
         # care about those.
@@ -297,8 +374,8 @@ class Plugin(indigo.PluginBase):
     ########################################
     # Plugin Actions object callbacks (action is an Indigo plugin action instance)
     ######################
-    def reset_hardware(self, action):
+    def reset_hardware(self: indigo.PluginBase, action: object) -> None:
         self.logger.debug(f"reset_hardware action called:\n {action}")
 
-    def update_hardware_firmware(self, action):
+    def update_hardware_firmware(self: indigo.PluginBase, action: object) -> None:
         self.logger.debug(f"update_hardware_firmware action called:\n {action}")
