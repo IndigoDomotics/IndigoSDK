@@ -1,4 +1,4 @@
-**Updating to API version 3.0 (Python 3)** - random things we've run across and definitely not exhaustive
+**Updating to API version 3.0+ (Python 3)** - random things we've run across and definitely not exhaustive
 - `imports` implicit imports are no longer honored in the way they were in Python 2. 
   Python [PEP 328](https://peps.python.org/pep-0328/) explains the issues with implicit (relative) imports. 
   See also [Package Relative Imports](https://docs.python.org/3/reference/import.html#package-relative-imports)
