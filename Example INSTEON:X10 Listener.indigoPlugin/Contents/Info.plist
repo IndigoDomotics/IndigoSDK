@@ -3,15 +3,13 @@
 <plist version="1.0">
 <dict>
     <key>PluginVersion</key>
-    <string>2023.1.0</string>
+    <string>2023.2.0</string>
     <key>ServerApiVersion</key>
-    <string>3.3</string>
-    <key>IwsApiVersion</key>
-    <string>1.0.0</string>
+    <string>3.4</string>
     <key>CFBundleDisplayName</key>
     <string>Example INSTEON/X10 Listener</string>
     <key>CFBundleIdentifier</key>
-    <string>com.perceptiveautomation.indigoplugin.example-insteon-x10-listener</string>
+    <string>com.example.indigoplugin.example-insteon-x10-listener</string>
     <key>CFBundleVersion</key>
     <string>1.0.0</string>
     <key>CFBundleURLTypes</key>
