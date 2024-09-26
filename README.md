@@ -5,7 +5,7 @@ the Indigo Server. Indigo Plugins allow new native devices, triggers, and action
 latest [extensive technical documentation](https://www.indigodomo.com/docs/documents#technical_documents) is available online, including:
 
 - [Indigo Scripting Tutorial](https://www.indigodomo.com/docs/plugin_scripting_tutorial) - dive into scripting Indigo by examples.
-- [Indigo 2023.2 Plugin Developer's Guide](https://www.indigodomo.com/docs/plugin_guide) - how to create plugin bundles for easy distribution, plugin UI, APIs, 
+- [Indigo 2024.1 Plugin Developer's Guide](https://www.indigodomo.com/docs/plugin_guide) - how to create plugin bundles for easy distribution, plugin UI, APIs, 
   callback hooks, and more.
 - [Indigo Object Model Reference](https://www.indigodomo.com/docs/object_model_reference) - the Indigo Object Model (IOM) and how to use it in Python.
 

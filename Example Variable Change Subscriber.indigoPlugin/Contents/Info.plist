@@ -3,9 +3,9 @@
 <plist version="1.0">
 <dict>
     <key>PluginVersion</key>
-    <string>2023.2.0</string>
+    <string>2024.1.0</string>
     <key>ServerApiVersion</key>
-    <string>3.4</string>
+    <string>3.5</string>
     <key>CFBundleDisplayName</key>
     <string>Example Variable Change Subscriber</string>
     <key>CFBundleIdentifier</key>
