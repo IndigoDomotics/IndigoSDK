@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
 ####################
-# Copyright (c) 2022, Perceptive Automation, LLC. All rights reserved.
+# Copyright (c) 2024, Perceptive Automation, LLC. All rights reserved.
 # https://www.indigodomo.com
 
 import random
@@ -9,7 +9,7 @@ import random
 try:
     # This is primarily for IDEs - the indigo package is always included when a plugin is started.
     import indigo
-except:
+except ImportError:
     pass
 
 ################################################################################
