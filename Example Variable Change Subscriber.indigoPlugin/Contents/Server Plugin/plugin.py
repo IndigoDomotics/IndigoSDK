@@ -5,8 +5,9 @@
 # https://www.indigodomo.com
 
 try:
+    # This is primarily for IDEs - the indigo package is always included when a plugin is started.
     import indigo
-except:
+except ImportError:
     pass
 
 # Note the "indigo" module is automatically imported and made available inside

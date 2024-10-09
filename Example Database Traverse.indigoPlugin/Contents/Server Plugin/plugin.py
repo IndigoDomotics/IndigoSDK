@@ -4,7 +4,7 @@
 try:
     # This is primarily for IDEs - the indigo package is always included when a plugin is started.
     import indigo
-except:
+except ImportError:
     pass
 
 DIVIDER_WIDTH = 50  # used to determine the width of the section/element dividers in the event log

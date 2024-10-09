@@ -4,7 +4,7 @@
 try:
     # This is primarily for IDEs - the indigo package is always included when a plugin is started.
     import indigo
-except:
+except ImportError:
     pass
 
 # Plugin ID of the Example Custom Broadcaster plugin (taken from its Info.plist file):

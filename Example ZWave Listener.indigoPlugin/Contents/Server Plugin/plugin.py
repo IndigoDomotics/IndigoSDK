@@ -4,7 +4,11 @@
 # Copyright (c) 2024, Perceptive Automation, LLC. All rights reserved.
 # https://www.indigodomo.com
 
-import indigo
+try:
+    # This is primarily for IDEs - the indigo package is always included when a plugin is started.
+    import indigo
+except ImportError:
+    pass
 
 import os
 import sys
