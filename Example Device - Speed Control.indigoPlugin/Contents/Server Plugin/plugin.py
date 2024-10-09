@@ -21,7 +21,7 @@ class Plugin(indigo.PluginBase):
     ########################################
     def __init__(self, plugin_id, plugin_display_name, plugin_version, plugin_prefs):
         super().__init__(plugin_id, plugin_display_name, plugin_version, plugin_prefs)
-        self.debug = True
+        self.debug: bool = True
         self.speed_labels = ["off", "low", "medium", "high"]
 
     ########################################

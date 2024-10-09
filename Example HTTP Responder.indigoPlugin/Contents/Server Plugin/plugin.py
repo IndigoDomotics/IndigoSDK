@@ -22,7 +22,7 @@ class Plugin(indigo.PluginBase):
     ########################################
     def __init__(self, plugin_id, plugin_display_name, plugin_version, plugin_prefs, **kwargs):
         super().__init__(plugin_id, plugin_display_name, plugin_version, plugin_prefs, **kwargs)
-        self.debug = True
+        self.debug: bool = True
         # Set up the environment for Jinja templates. The most important to to configure the file system loader so that
         # it points to our Resources/templates directory. Then we can just load the template via name (or name and
         # relative path within that folder if we choose).

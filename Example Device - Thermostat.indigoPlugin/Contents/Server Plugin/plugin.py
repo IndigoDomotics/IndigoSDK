@@ -44,7 +44,7 @@ class Plugin(indigo.PluginBase):
     ########################################
     def __init__(self, plugin_id, plugin_display_name, plugin_version, plugin_prefs):
         super().__init__(plugin_id, plugin_display_name, plugin_version, plugin_prefs)
-        self.debug = False
+        self.debug: bool = True
         self.simulate_temp_changes = True     # Every few seconds update to random temperature values
         self.simulate_humidity_changes = True # Every few seconds update to random humidity values
         self.refresh_delay = 2               # Simulate new temperature values every 2 seconds
