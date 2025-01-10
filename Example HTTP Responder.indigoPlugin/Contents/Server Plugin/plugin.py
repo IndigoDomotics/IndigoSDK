@@ -1,13 +1,12 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
 ####################
-# Copyright (c) 2022, Indigo Domotics. All rights reserved.
+# Copyright (c) 2024, Indigo Domotics. All rights reserved.
 # https://www.indigodomo.com
 try:
-    # This is primarily for IDEs so that they won't mark indigo stuff as undefined. The module itself is always imported
-    # by the host process.
+    # This is primarily for IDEs - the indigo package is always included when a plugin is started.
     import indigo
-except:
+except ImportError:
     pass
 
 from datetime import datetime
@@ -23,7 +22,7 @@ class Plugin(indigo.PluginBase):
     ########################################
     def __init__(self, plugin_id, plugin_display_name, plugin_version, plugin_prefs, **kwargs):
         super().__init__(plugin_id, plugin_display_name, plugin_version, plugin_prefs, **kwargs)
-        self.debug = True
+        self.debug: bool = True
         # Set up the environment for Jinja templates. The most important to to configure the file system loader so that
         # it points to our Resources/templates directory. Then we can just load the template via name (or name and
         # relative path within that folder if we choose).

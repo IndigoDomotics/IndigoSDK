@@ -1,10 +1,10 @@
 ####################
-# Copyright (c) 2023, Indigo Domotics. All rights reserved.
+# Copyright (c) 2024, Indigo Domotics. All rights reserved.
 # https://www.indigodomo.com
 try:
     # This is primarily for IDEs - the indigo package is always included when a plugin is started.
     import indigo
-except:
+except ImportError:
     pass
 
 import time
