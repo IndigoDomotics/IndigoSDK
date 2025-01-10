@@ -26,4 +26,4 @@ also change your plugin's display name (`CFBundleDisplayName`) and help URL (`CF
 For help with plugin development, or to report any API problems or requests, join us on our 
 [active and helpful developer forum.](https://forums.indigodomo.com/viewforum.php?f=18)
 
-Copyright © 2024 Perceptive Automation, LLC. All rights reserved.
+Copyright © 2025 Perceptive Automation, LLC. All rights reserved.
