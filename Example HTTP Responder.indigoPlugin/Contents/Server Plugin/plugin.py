@@ -23,9 +23,9 @@ class Plugin(indigo.PluginBase):
     def __init__(self, plugin_id, plugin_display_name, plugin_version, plugin_prefs, **kwargs):
         super().__init__(plugin_id, plugin_display_name, plugin_version, plugin_prefs, **kwargs)
         self.debug: bool = True
-        # Set up the environment for Jinja templates. The most important to to configure the file system loader so that
-        # it points to our Resources/templates directory. Then we can just load the template via name (or name and
-        # relative path within that folder if we choose).
+        # Set up the environment for Jinja templates. The most important thing to configure is the file system loader
+        # so that it points to our Resources/templates directory. Then we can just load the template via name (or name
+        # and relative path within that folder if we choose).
         self.templates = jinja2.Environment(
             loader=jinja2.FileSystemLoader("../Resources/templates"),
             autoescape=True,
@@ -116,8 +116,8 @@ class Plugin(indigo.PluginBase):
 
         ** IMPORTANT **
         This example is here to illustrate one way to return a file from a plugin without putting it into one of the
-        directories that are automatically served within the Resources folder (see the README.txt file in the Server Plugin
-        folder for details on how the Indigo Web Server can automatically serve up content from your plugin.
+        directories that are automatically served within the Resources folder (see the README.txt file in the Server
+        Plugin folder for details on how the Indigo Web Server can automatically serve up content from your plugin.)
 
             http://localhost:8176/message/com.indigodomo.indigoplugin.example-http-responder/handle_static_file_request/?file-name=test.csv
 

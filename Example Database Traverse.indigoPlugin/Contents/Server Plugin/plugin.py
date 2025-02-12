@@ -316,7 +316,7 @@ class Plugin(indigo.PluginBase):
     ####################
     def log_control_page(self: indigo.PluginBase, elem: any) -> None:
         self.log_base_elem(elem, indigo.controlPages.folders)
-        self.log_element("hide tabbar", elem.hideTabBar)
+        self.log_element("hide tab bar", elem.hideTabBar)
         if len(elem.backgroundImage) > 0:
             self.log_element("background image", elem.backgroundImage)
         # TODO: Need to log additional properties after they are implemented here.
