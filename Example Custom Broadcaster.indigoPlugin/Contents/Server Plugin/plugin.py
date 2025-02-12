@@ -60,7 +60,7 @@ class Plugin(indigo.PluginBase):
     def runConcurrentThread(self: indigo.PluginBase) -> None:
         """
         This method, if defined, will be started up in a separate thread, so that it runs in parallel with the main
-        plugin thread which processes all of the other method calls. Note that it should be called with an infinite
+        plugin thread which processes all the other method calls. Note that it should be called with an infinite
         loop wrapped in a try block which catches self.StopThread, which is your signal that the plugin is about to
         shut down.
 

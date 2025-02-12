@@ -53,7 +53,7 @@ class Plugin(indigo.PluginBase):
                             key_val_list = []
                             key_val_list.append({'key':'sensorValue', 'value':example_temp_float, 'uiValue':example_temp_str})
                             # Override the state icon shown (in Indigo Touch and client Main Window)
-                            # for this device to be the a temperature sensor:
+                            # for this device to be a temperature sensor:
                             if dev.onState is not None:
                                 key_val_list.append({'key':'onOffState', 'value':not dev.onState})
                                 dev.updateStatesOnServer(key_val_list)

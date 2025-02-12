@@ -22,7 +22,7 @@ class Plugin(indigo.PluginBase):
     ########################################
     def __init__(self, plugin_id, plugin_display_name, plugin_version, plugin_prefs):
         super().__init__(plugin_id, plugin_display_name, plugin_version, plugin_prefs)
-        self.debug: bool = False
+        self.debug: bool = True
 
     ########################################
     def startup(self):
@@ -35,7 +35,7 @@ class Plugin(indigo.PluginBase):
     # deviceStartComm() is called on application launch for all of our plugin defined
     # devices, and it is called when a new device is created immediately after its
     # UI settings dialog has been validated. This is a good place to force any properties
-    # we need the device to have, and to cleanup old properties.
+    # we need the device to have, and to clean up old properties.
     def deviceStartComm(self, dev):
         # self.logger.debug(f"deviceStartComm: {dev.name}")
 

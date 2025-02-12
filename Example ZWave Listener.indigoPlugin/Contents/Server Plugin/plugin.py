@@ -18,7 +18,7 @@ import sys
 
 ########################################
 # Tiny function to convert a list of integers (bytes in this case) to a
-# hexidecimal string for pretty logging.
+# hexadecimal string for pretty logging.
 def convert_list_to_hex_str(byte_list):
     return ' '.join([f"{byte:02X}" for byte in byte_list])
 
