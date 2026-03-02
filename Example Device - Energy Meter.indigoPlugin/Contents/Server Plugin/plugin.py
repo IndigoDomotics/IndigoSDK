@@ -183,5 +183,9 @@ class Plugin(indigo.PluginBase):
             # Else log failure but do NOT update state on Indigo Server.
             self.logger.error(f"send \"{dev.name}\" set backlight brightness to {new_brightness} failed")
 
+    ########################################
+    # Menu items
+    ######################
     def toggle_automatic_updates(self):
+        # toggles a global variable to enable/disable continuous state updates for all devices.
         self.automatic_updates = not self.automatic_updates

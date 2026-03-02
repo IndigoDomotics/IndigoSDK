@@ -397,4 +397,5 @@ class Plugin(indigo.PluginBase):
         self._change_all_humidity_sensor_counts(3)
 
     def toggle_automatic_updates(self):
+        # toggles a global variable to enable/disable continuous state updates for all devices.
         self.automatic_updates = not self.automatic_updates
