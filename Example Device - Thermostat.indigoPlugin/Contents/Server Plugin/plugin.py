@@ -47,7 +47,8 @@ class Plugin(indigo.PluginBase):
         self.debug: bool = True
         self.simulate_temp_changes = True     # Every few seconds update to random temperature values
         self.simulate_humidity_changes = True # Every few seconds update to random humidity values
-        self.refresh_delay = 2               # Simulate new temperature values every 2 seconds
+        self.refresh_delay = 2                # Simulate new temperature values every 2 seconds
+        self.automatic_updates = True         # Manage whether plugin simulates state changes
 
     ########################################
     # Internal utility methods. Some of these are useful to provide
@@ -235,13 +236,14 @@ class Plugin(indigo.PluginBase):
         try:
             while True:
                 for dev in indigo.devices.iter("self"):
-                    if not dev.enabled or not dev.configured:
-                        continue
+                    if self.automatic_updates:
+                        if not dev.enabled or not dev.configured:
+                            continue
 
-                    # Plugins that need to poll out the status from the thermostat
-                    # could do so here, then broadcast back the new values to the
-                    # Indigo Server.
-                    self._refresh_states_from_hardware(dev, False, False)
+                        # Plugins that need to poll out the status from the thermostat
+                        # could do so here, then broadcast back the new values to the
+                        # Indigo Server.
+                        self._refresh_states_from_hardware(dev, False, False)
 
                 self.sleep(self.refresh_delay)
         except self.StopThread:
@@ -394,4 +396,6 @@ class Plugin(indigo.PluginBase):
     def change_humidity_sensor_count_to_3(self):
         self._change_all_humidity_sensor_counts(3)
 
-
+    def toggle_auto_updates(self):
+        # A menu item toggle to turn on/off state updates of plugin devices
+        self.automatic_updates = not self.automatic_updates

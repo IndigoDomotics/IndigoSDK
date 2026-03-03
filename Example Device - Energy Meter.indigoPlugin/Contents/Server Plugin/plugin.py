@@ -25,6 +25,7 @@ class Plugin(indigo.PluginBase):
     ) -> None:
         super().__init__(plugin_id, plugin_display_name, plugin_version, plugin_prefs)
         self.debug: bool = True
+        self.automatic_updates = True  # Manage whether plugin simulates state changes
 
     ########################################
     def startup(self: indigo.PluginBase) -> None:
@@ -73,12 +74,13 @@ class Plugin(indigo.PluginBase):
         try:
             while True:
                 for dev in indigo.devices.iter("self"):
-                    if not dev.enabled or not dev.configured:
-                        continue
-                    # Plugins that need to poll out the status from the meter
-                    # could do so here, then broadcast back the new values to the
-                    # Indigo Server.
-                    self._refresh_states_from_hardware(dev, False)
+                    if self.automatic_updates:
+                        if not dev.enabled or not dev.configured:
+                            continue
+                        # Plugins that need to poll out the status from the meter
+                        # could do so here, then broadcast back the new values to the
+                        # Indigo Server.
+                        self._refresh_states_from_hardware(dev, False)
                 self.sleep(2)
         except self.StopThread:
             pass  # Optionally catch the StopThread exception and do any needed cleanup.
@@ -180,3 +182,8 @@ class Plugin(indigo.PluginBase):
         else:
             # Else log failure but do NOT update state on Indigo Server.
             self.logger.error(f"send \"{dev.name}\" set backlight brightness to {new_brightness} failed")
+
+    # Menu item actions
+    def toggle_auto_updates(self):
+        # A menu item toggle to turn on/off state updates of plugin devices
+        self.automatic_updates = not self.automatic_updates
