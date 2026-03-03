@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
 ####################
-# Copyright (c) 2026, Indigo Domotics. All rights reserved.
+# Copyright (c) 2024, Indigo Domotics. All rights reserved.
 # https://www.indigodomo.com
 try:
     # This is primarily for IDEs - the indigo package is always included when a plugin is started.
