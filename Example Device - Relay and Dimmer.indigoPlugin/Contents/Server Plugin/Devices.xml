@@ -171,7 +171,7 @@
     device behavior with the lock sub-type, so that it shows the lock
     icons and verbiage, and can be targetted by the lock/unlock actions.
     -->
-    <Device type="relay" id="myLockType">
+    <Device type="relay" id="myLockType" subType="kRelayDeviceSubType.Lock">
         <Name>Example Lock Module</Name>
         <ConfigUI>
             <!-- The ConfigUI here is just an example of the type of device
@@ -180,8 +180,11 @@
             specific options.
             -->
             <Field id="address" type="textfield" defaultValue="123456">
-                <Label>Module Address:</Label>
+                <Label>Module Address something:</Label>
             </Field>
+            <!-- This could be set in the deviceStartComm method, but you can also just
+                 hardcode it here so you don't have to deal with it there. -->
+            <Field id="IsLockSubType" type="checkbox" hidden="True" defaultValue="True"/>
         </ConfigUI>
         <States>
             <!-- By default relay type devices automatically inherit the

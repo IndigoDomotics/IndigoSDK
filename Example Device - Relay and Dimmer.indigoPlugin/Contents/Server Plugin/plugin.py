@@ -41,7 +41,9 @@ class Plugin(indigo.PluginBase):
 
         props = dev.pluginProps
         if dev.deviceTypeId == 'myColorType':
-            # Set SupportsColor property so Indigo knows device accepts color actions and should use color UI.
+            # Set SupportsColor property so Indigo knows device accepts color actions and should use color UI. We don't
+            # set it as a hidden field on the config XML but rather set it here just to illustrate how to set a prop
+            # in code vs in the XML. See the Lock device XML for an example of setting a prop as a hidden field.
             props["SupportsColor"] = True
 
             # Cleanup properties used by other device types. These can exist if user switches the device type.
@@ -50,14 +52,10 @@ class Plugin(indigo.PluginBase):
 
             dev.replacePluginPropsOnServer(props)
         elif dev.deviceTypeId == 'myLockType':
-            # Set IsLockSubType property so Indigo knows device accepts lock actions and should use lock UI.
-            props["IsLockSubType"] = True
-
             # Cleanup properties used by other device types. These can exist if user switches the device type.
             if "SupportsColor" in props:
                 del props["SupportsColor"]
-
-            dev.replacePluginPropsOnServer(props)
+                dev.replacePluginPropsOnServer(props)
 
     ########################################
     def validateDeviceConfigUi(self, values_dict, type_id, dev_id):
