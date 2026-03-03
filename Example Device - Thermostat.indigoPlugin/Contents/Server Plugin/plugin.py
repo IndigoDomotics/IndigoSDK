@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
 ####################
-# Copyright (c) 2024, Perceptive Automation, LLC. All rights reserved.
+# Copyright (c) 2026, Perceptive Automation, LLC. All rights reserved.
 # https://www.indigodomo.com
 
 try:
@@ -44,10 +44,11 @@ class Plugin(indigo.PluginBase):
     ########################################
     def __init__(self, plugin_id, plugin_display_name, plugin_version, plugin_prefs):
         super().__init__(plugin_id, plugin_display_name, plugin_version, plugin_prefs)
-        self.debug: bool = True
-        self.simulate_temp_changes = True     # Every few seconds update to random temperature values
-        self.simulate_humidity_changes = True # Every few seconds update to random humidity values
-        self.refresh_delay = 2               # Simulate new temperature values every 2 seconds
+        self.debug: bool = False
+        self.simulate_temp_changes = True      # Every few seconds update to random temperature values
+        self.simulate_humidity_changes = True  # Every few seconds update to random humidity values
+        self.refresh_delay = 2                 # Simulate new temperature values every 2 seconds
+        self.automatic_updates = True          # Enable/disable automatic device updates
 
     ########################################
     # Internal utility methods. Some of these are useful to provide
@@ -234,14 +235,15 @@ class Plugin(indigo.PluginBase):
     def runConcurrentThread(self):
         try:
             while True:
-                for dev in indigo.devices.iter("self"):
-                    if not dev.enabled or not dev.configured:
-                        continue
+                if self.automatic_updates:
+                    for dev in indigo.devices.iter("self"):
+                        if not dev.enabled or not dev.configured:
+                            continue
 
-                    # Plugins that need to poll out the status from the thermostat
-                    # could do so here, then broadcast back the new values to the
-                    # Indigo Server.
-                    self._refresh_states_from_hardware(dev, False, False)
+                        # Plugins that need to poll out the status from the thermostat
+                        # could do so here, then broadcast back the new values to the
+                        # Indigo Server.
+                        self._refresh_states_from_hardware(dev, False, False)
 
                 self.sleep(self.refresh_delay)
         except self.StopThread:
@@ -394,4 +396,6 @@ class Plugin(indigo.PluginBase):
     def change_humidity_sensor_count_to_3(self):
         self._change_all_humidity_sensor_counts(3)
 
-
+    def toggle_automatic_updates(self):
+        # toggles a global variable to enable/disable continuous state updates for all devices.
+        self.automatic_updates = not self.automatic_updates
