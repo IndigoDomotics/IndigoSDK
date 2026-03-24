@@ -24,7 +24,7 @@ class Plugin(indigo.PluginBase):
             **kwargs: dict
     ) -> None:
         super().__init__(plugin_id, plugin_display_name, plugin_version, plugin_prefs)
-        self.debug: bool = True
+        self.debug: bool = False
         self.automatic_updates = True  # Manage whether plugin simulates state changes
 
     ########################################

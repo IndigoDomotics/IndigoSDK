@@ -31,7 +31,7 @@ class Plugin(indigo.PluginBase):
         :param kwargs: passthrough for any other keyword args
         :return: None
         """
-        self.debug: bool = True
+        self.debug: bool = False
 
     ########################################
     def startup(self: indigo.PluginBase) -> None:
