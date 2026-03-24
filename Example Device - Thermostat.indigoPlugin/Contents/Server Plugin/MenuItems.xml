@@ -34,6 +34,7 @@
         <Name>Set All to 3 Humidity Sensors</Name>
         <CallbackMethod>change_humidity_sensor_count_to_3</CallbackMethod>
     </MenuItem>
+    <MenuItem id="separator1" type="separator"/>
     <MenuItem id="menu8">
         <Name>Toggle Automatic Updates</Name>
         <CallbackMethod>toggle_auto_updates</CallbackMethod>
