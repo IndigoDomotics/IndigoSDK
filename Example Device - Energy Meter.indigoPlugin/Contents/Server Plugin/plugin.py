@@ -34,6 +34,14 @@ class Plugin(indigo.PluginBase):
     def shutdown(self: indigo.PluginBase) -> None:
         self.logger.debug("shutdown called")
 
+    def toggle_debug(self):
+        """Toggle plugin debug level."""
+        self.debug = not self.debug
+        if self.debug:
+            self.logger.debug("toggling debug level off.")
+        else:
+            self.logger.info("toggling debug level on.")
+
     ########################################
     # Poll all of the states from the energy meter and pass new values to
     # Indigo Server.

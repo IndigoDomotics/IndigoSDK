@@ -32,6 +32,14 @@ class Plugin(indigo.PluginBase):
         # self.logger.debug("shutdown called")
         pass
 
+    def toggle_debug(self):
+        """Toggle plugin debug level."""
+        self.debug = not self.debug
+        if self.debug:
+            self.logger.debug("toggling debug level off.")
+        else:
+            self.logger.info("toggling debug level on.")
+
     ########################################
     def validateDeviceConfigUi(self, values_dict, type_id, dev_id):
         return (True, values_dict)

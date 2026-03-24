@@ -81,6 +81,14 @@ class Plugin(indigo.PluginBase):
         ]
         self.server_time_dev.updateStatesOnServer(key_value_list)
 
+    def toggle_debug(self):
+        """Toggle plugin debug level."""
+        self.debug = not self.debug
+        if self.debug:
+            self.logger.debug("toggling debug level off.")
+        else:
+            self.logger.info("toggling debug level on.")
+
     ########################################
     def runConcurrentThread(self: indigo.PluginBase) -> None:
         """

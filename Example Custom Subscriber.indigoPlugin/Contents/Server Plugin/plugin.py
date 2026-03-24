@@ -31,6 +31,7 @@ class Plugin(indigo.PluginBase):
         :param kwargs: passthrough for any other keyword args
         :return: None
         """
+        super().__init__(plugin_id, plugin_display_name, plugin_version, plugin_prefs, **kwargs)
         self.debug: bool = False
 
     ########################################
@@ -57,6 +58,14 @@ class Plugin(indigo.PluginBase):
         :return: None
         """
         self.logger.debug("shutdown called")
+
+    def toggle_debug(self):
+        """Toggle plugin debug level."""
+        self.debug = not self.debug
+        if self.debug:
+            self.logger.debug("toggling debug level off.")
+        else:
+            self.logger.info("toggling debug level on.")
 
     ########################################
     def broadcasterStarted(self: indigo.PluginBase) -> None:

@@ -10,4 +10,8 @@
         <Name>Toggle Automatic Updates</Name>
         <CallbackMethod>toggle_auto_updates</CallbackMethod>
     </MenuItem>
+    <MenuItem id="menu2">
+        <Name>Toggle Debug</Name>
+        <CallbackMethod>toggle_debug</CallbackMethod>
+    </MenuItem>
 </MenuItems>

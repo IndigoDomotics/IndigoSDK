@@ -51,6 +51,14 @@ class Plugin(indigo.PluginBase):
         """
         self.logger.debug("shutdown called")
 
+    def toggle_debug(self):
+        """Toggle plugin debug level."""
+        self.debug = not self.debug
+        if self.debug:
+            self.logger.debug("toggling debug level off.")
+        else:
+            self.logger.info("toggling debug level on.")
+
     @staticmethod
     def validate_device_info_action(dev_id: int, props: indigo.Dict) -> tuple:
         """

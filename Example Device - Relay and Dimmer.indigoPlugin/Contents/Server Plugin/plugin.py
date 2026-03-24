@@ -31,6 +31,14 @@ class Plugin(indigo.PluginBase):
     def shutdown(self):
         self.logger.debug("shutdown called")
 
+    def toggle_debug(self):
+        """Toggle plugin debug level."""
+        self.debug = not self.debug
+        if self.debug:
+            self.logger.debug("toggling debug level off.")
+        else:
+            self.logger.info("toggling debug level on.")
+
     ########################################
     # deviceStartComm() is called on application launch for all of our plugin defined
     # devices, and it is called when a new device is created immediately after its

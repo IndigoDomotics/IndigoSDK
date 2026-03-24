@@ -20,4 +20,9 @@
             </Field>
         </ConfigUI>
 	</MenuItem>
+    <MenuItem id="separator1" type="separator"/>
+    <MenuItem id="menu3">
+        <Name>Toggle Debug</Name>
+        <CallbackMethod>toggle_debug</CallbackMethod>
+    </MenuItem>
 </MenuItems>
