@@ -31,7 +31,7 @@ class Plugin(indigo.PluginBase):
         :return: None
         """
         super().__init__(plugin_id, plugin_display_name, plugin_version, plugin_prefs)
-        self.debug: bool = True
+        self.debug: bool = False
         self.time_warp_on: bool = False
         self.time_warp_count: int = 0
         self.state_updater_dev: indigo.Device = None
@@ -80,6 +80,14 @@ class Plugin(indigo.PluginBase):
             {'key': 'serverDateTime', 'value': "--"},
         ]
         self.server_time_dev.updateStatesOnServer(key_value_list)
+
+    def toggle_debug(self):
+        """Toggle plugin debug level."""
+        self.debug = not self.debug
+        if self.debug:
+            self.logger.debug("toggling debug level off.")
+        else:
+            self.logger.info("toggling debug level on.")
 
     ########################################
     def runConcurrentThread(self: indigo.PluginBase) -> None:

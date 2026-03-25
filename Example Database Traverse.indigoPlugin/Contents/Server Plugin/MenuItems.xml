@@ -28,4 +28,9 @@
         <Name>Log Variables</Name>
         <CallbackMethod>traverse_variables</CallbackMethod>
     </MenuItem>
+    <MenuItem id="separator1" type="separator"/>
+    <MenuItem id="menu9">
+        <Name>Toggle Debug</Name>
+        <CallbackMethod>toggle_debug</CallbackMethod>
+    </MenuItem>
 </MenuItems>
