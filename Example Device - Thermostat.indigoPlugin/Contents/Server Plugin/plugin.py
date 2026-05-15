@@ -44,7 +44,7 @@ class Plugin(indigo.PluginBase):
     ########################################
     def __init__(self, plugin_id, plugin_display_name, plugin_version, plugin_prefs):
         super().__init__(plugin_id, plugin_display_name, plugin_version, plugin_prefs)
-        self.debug: bool = True
+        self.debug: bool = False
         self.simulate_temp_changes = True     # Every few seconds update to random temperature values
         self.simulate_humidity_changes = True # Every few seconds update to random humidity values
         self.refresh_delay = 2                # Simulate new temperature values every 2 seconds
@@ -230,6 +230,14 @@ class Plugin(indigo.PluginBase):
 
     def shutdown(self):
         self.logger.debug("shutdown called")
+
+    def toggle_debug(self):
+        """Toggle plugin debug level."""
+        self.debug = not self.debug
+        if self.debug:
+            self.logger.debug("toggling debug level off.")
+        else:
+            self.logger.info("toggling debug level on.")
 
     ########################################
     def runConcurrentThread(self):

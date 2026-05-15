@@ -10,4 +10,10 @@
         <Name>Time Warp!</Name>
         <CallbackMethod>time_warp</CallbackMethod>
     </MenuItem>
+    <MenuItem id="separator1" type="separator"/>
+    <MenuItem id="menu2">
+        <Name>Toggle Debug</Name>
+        <CallbackMethod>toggle_debug</CallbackMethod>
+    </MenuItem>
+
 </MenuItems>
