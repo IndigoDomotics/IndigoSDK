@@ -3,9 +3,9 @@
 <plist version="1.0">
 <dict>
     <key>PluginVersion</key>
-    <string>2025.2</string>
+    <string>2026.1</string>
     <key>ServerApiVersion</key>
-    <string>3.8</string>
+    <string>3.9</string>
     <key>CFBundleDisplayName</key>
     <string>Example Custom Subscriber</string>
     <key>CFBundleIdentifier</key>
@@ -16,7 +16,7 @@
     <array>
         <dict>
             <key>CFBundleURLName</key>
-            <string>https://wiki.indigodomo.com/doku.php?id=plugins:example_custom_subscriber_1</string>
+            <string>https://docs.indigodomo.com/2026.1/plugin-dev/sdk-examples/</string>
         </dict>
     </array>
 </dict>
