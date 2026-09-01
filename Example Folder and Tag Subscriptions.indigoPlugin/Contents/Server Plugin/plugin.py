@@ -70,16 +70,16 @@ class Plugin(indigo.PluginBase):
         # The tag library is global -- one library shared by every object type -- so there is
         # a single subscription rather than one per list.
         #
-        # Guarded because tag library subscriptions are newer than folder ones: on a server
-        # that predates them the method is simply absent. An example should still load and
-        # demonstrate the half it can rather than dying at startup, and this is the pattern to
-        # copy if your plugin has to run against more than one Indigo version.
+        # Guarded because tag subscriptions are newer than folder ones: on a server that
+        # predates them the method is simply absent. This is the pattern to copy if your
+        # plugin has to run against more than one Indigo version -- without it the plugin
+        # fails in startup() on the older server and none of the rest runs either.
         try:
-            indigo.server.subscribeToTagLibraryChanges()
+            indigo.server.subscribeToTagChanges()
             self.logger.info("subscribed to tag library changes")
         except AttributeError:
             self.logger.warning(
-                "this Indigo Server has no tag library subscriptions -- skipping that half; "
+                "this Indigo Server has no tag subscriptions -- skipping that half; "
                 "the folder subscriptions above are active"
             )
 
@@ -149,10 +149,14 @@ class Plugin(indigo.PluginBase):
         self.logger.info(f"folder_deleted: {folder.parentType} folder '{folder.name}' (id {folder.id})")
 
     ########################################
-    # Tag library callback.
+    # Tag library callbacks.
     #
-    # One callback for the whole library, because there is one library. It fires for a tag
-    # being created, renamed, recolored or deleted.
+    # One subscription for the whole library, because there is one library -- unlike folders,
+    # which are subscribed per object type.
+    #
+    # Each tag arrives as a one-entry {name: "AABBCC"} map rather than a loose name and
+    # color. A tag is an entry in a map everywhere in this API, so one tag is a map of one,
+    # and indigo.server.tags hands back the whole library in exactly the same shape.
     #
     # Tags on an object are a different thing and do NOT come through here: adding or removing
     # a tag on a device changes the device, so it arrives as an ordinary device_updated().
@@ -160,16 +164,49 @@ class Plugin(indigo.PluginBase):
     # is. A recolor is the case that ONLY reaches you here, since recoloring a tag changes no
     # object at all.
     ########################################
-    def tag_library_updated(self: indigo.PluginBase, tags: dict) -> None:
+    def tag_created(self: indigo.PluginBase, tag: dict) -> None:
         """
-        Called when the server's tag library changes in any way.
+        Called when a tag is added to the server's tag library.
 
-        :param tags: the full library after the change, as {tag name: "AABBCC" color}
+        :param tag: the new tag as a one-entry {name: "AABBCC"} map
         :return: None
         """
-        self.logger.info(f"tag_library_updated: {len(tags)} tag(s) in the library")
-        for name, color in sorted(tags.items()):
-            self.logger.debug(f"    {name} = #{color}")
+        for name, color in tag.items():
+            self.logger.info(f"tag_created: '{name}' color #{color}")
+
+    def tag_updated(self: indigo.PluginBase, orig_tag: dict, new_tag: dict) -> None:
+        """
+        Called when a tag is renamed and/or recolored.
+
+        Both the before and after are given, so whichever did not change simply repeats -- a
+        pure recolor has the same name in both, a pure rename the same color. That means you
+        never have to have cached the previous library to see what happened.
+
+        :param orig_tag: the tag before the change, as {name: color}
+        :param new_tag: the tag after the change, as {name: color}
+        :return: None
+        """
+        orig_name, orig_color = next(iter(orig_tag.items()))
+        new_name, new_color = next(iter(new_tag.items()))
+        changes: list = []
+        if orig_name != new_name:
+            changes.append(f"renamed '{orig_name}' -> '{new_name}'")
+        if orig_color != new_color:
+            changes.append(f"recolored #{orig_color} -> #{new_color}")
+        self.logger.info(f"tag_updated: {', '.join(changes) if changes else 'no visible change'}")
+
+    def tag_deleted(self: indigo.PluginBase, tag: dict) -> None:
+        """
+        Called when a tag is removed from the server's tag library.
+
+        The tag is also removed from every object that carried it, and each of those objects
+        reaches you as an ordinary update for its own type -- not through this callback.
+
+        :param tag: the tag as it was just before deletion, as {name: color}
+        :return: None
+        """
+        for name, color in tag.items():
+            self.logger.info(f"tag_deleted: '{name}' color #{color}")
 
     ########################################
     # Menu items -- these just dump current state, so you can compare it against the
