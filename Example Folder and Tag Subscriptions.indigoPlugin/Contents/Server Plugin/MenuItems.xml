@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<MenuItems>
+    <MenuItem id="menu1">
+        <Name>Log Current Folders</Name>
+        <CallbackMethod>log_folders</CallbackMethod>
+    </MenuItem>
+    <MenuItem id="menu2">
+        <Name>Log Current Tag Library</Name>
+        <CallbackMethod>log_tags</CallbackMethod>
+    </MenuItem>
+    <MenuItem id="separator1" type="separator"/>
+    <MenuItem id="menu3">
+        <Name>Toggle Debug</Name>
+        <CallbackMethod>toggle_debug</CallbackMethod>
+    </MenuItem>
+</MenuItems>
