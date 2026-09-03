@@ -154,9 +154,13 @@ class Plugin(indigo.PluginBase):
     # One subscription for the whole library, because there is one library -- unlike folders,
     # which are subscribed per object type.
     #
-    # Each tag arrives as a one-entry {name: "AABBCC"} map rather than a loose name and
-    # color. A tag is an entry in a map everywhere in this API, so one tag is a map of one,
-    # and indigo.server.tags hands back the whole library in exactly the same shape.
+    # Each tag arrives as a one-entry {name: {"color": "AABBCC"}} map rather than a loose
+    # name and color. A tag is an entry in a map everywhere in this API, so one tag is a map
+    # of one, and indigo.server.tags hands back the whole library in exactly the same shape --
+    # which means a callback argument can be passed straight to code written for the library.
+    #
+    # The value is a record, not the color itself: color is a tag's only attribute today, and
+    # a record can gain a second one without every plugin that unpacks it having to change.
     #
     # Tags on an object are a different thing and do NOT come through here: adding or removing
     # a tag on a device changes the device, so it arrives as an ordinary device_updated().
@@ -168,11 +172,11 @@ class Plugin(indigo.PluginBase):
         """
         Called when a tag is added to the server's tag library.
 
-        :param tag: the new tag as a one-entry {name: "AABBCC"} map
+        :param tag: the new tag as a one-entry {name: {"color": "AABBCC"}} map
         :return: None
         """
-        for name, color in tag.items():
-            self.logger.info(f"tag_created: '{name}' color #{color}")
+        for name, record in tag.items():
+            self.logger.info(f"tag_created: '{name}' color #{record['color']}")
 
     def tag_updated(self: indigo.PluginBase, orig_tag: dict, new_tag: dict) -> None:
         """
@@ -182,12 +186,13 @@ class Plugin(indigo.PluginBase):
         pure recolor has the same name in both, a pure rename the same color. That means you
         never have to have cached the previous library to see what happened.
 
-        :param orig_tag: the tag before the change, as {name: color}
-        :param new_tag: the tag after the change, as {name: color}
+        :param orig_tag: the tag before the change, as {name: {"color": ...}}
+        :param new_tag: the tag after the change, as {name: {"color": ...}}
         :return: None
         """
-        orig_name, orig_color = next(iter(orig_tag.items()))
-        new_name, new_color = next(iter(new_tag.items()))
+        orig_name, orig_record = next(iter(orig_tag.items()))
+        new_name, new_record = next(iter(new_tag.items()))
+        orig_color, new_color = orig_record["color"], new_record["color"]
         changes: list = []
         if orig_name != new_name:
             changes.append(f"renamed '{orig_name}' -> '{new_name}'")
@@ -202,11 +207,11 @@ class Plugin(indigo.PluginBase):
         The tag is also removed from every object that carried it, and each of those objects
         reaches you as an ordinary update for its own type -- not through this callback.
 
-        :param tag: the tag as it was just before deletion, as {name: color}
+        :param tag: the tag as it was just before deletion, as {name: {"color": ...}}
         :return: None
         """
-        for name, color in tag.items():
-            self.logger.info(f"tag_deleted: '{name}' color #{color}")
+        for name, record in tag.items():
+            self.logger.info(f"tag_deleted: '{name}' color #{record['color']}")
 
     ########################################
     # Menu items -- these just dump current state, so you can compare it against the
@@ -234,8 +239,9 @@ class Plugin(indigo.PluginBase):
         """
         Log the server's whole tag library.
 
-        indigo.server.tags is a {name: color} map of every tag in the library, including tags
-        no object currently carries.
+        indigo.server.tags is a {name: {"color": ...}} map of every tag in the library,
+        including tags no object currently carries. Note this unpacks exactly like a callback
+        argument -- same shape, one entry or many.
 
         :return: None
         """
@@ -244,8 +250,8 @@ class Plugin(indigo.PluginBase):
             self.logger.info("the tag library is empty")
             return
         self.logger.info(f"tag library ({len(tags)} tags):")
-        for name, color in sorted(tags.items()):
-            self.logger.info(f"    {name} = #{color}")
+        for name, record in sorted(tags.items()):
+            self.logger.info(f"    {name} = #{record['color']}")
 
     def toggle_debug(self: indigo.PluginBase) -> None:
         """
