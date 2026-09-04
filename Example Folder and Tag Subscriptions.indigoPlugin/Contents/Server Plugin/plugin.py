@@ -154,13 +154,19 @@ class Plugin(indigo.PluginBase):
     # One subscription for the whole library, because there is one library -- unlike folders,
     # which are subscribed per object type.
     #
-    # Each tag arrives as a one-entry {name: {"color": "AABBCC"}} map rather than a loose
-    # name and color. A tag is an entry in a map everywhere in this API, so one tag is a map
+    # Each tag arrives as a one-entry {name: record} map rather than a loose name and
+    # color. A tag is an entry in a map everywhere in this API, so one tag is a map
     # of one, and indigo.server.tags hands back the whole library in exactly the same shape --
     # which means a callback argument can be passed straight to code written for the library.
     #
-    # The value is a record, not the color itself: color is a tag's only attribute today, and
-    # a record can gain a second one without every plugin that unpacks it having to change.
+    # The value is a record, not the color itself, and it holds three colors:
+    #
+    #     {"color": "AABBCC", "text_color": "AABBCC", "border_color": "AABBCC"}
+    #
+    # Only "color" is stored -- it is what the user picked, and the only one you can set. The
+    # other two are derived from it by the server and are read-only: they are what to draw a
+    # tag pill's text and border with. Use them rather than working out your own contrast
+    # against the background, and your tags look like the ones in the Indigo client.
     #
     # Tags on an object are a different thing and do NOT come through here: adding or removing
     # a tag on a device changes the device, so it arrives as an ordinary device_updated().
@@ -168,15 +174,21 @@ class Plugin(indigo.PluginBase):
     # is. A recolor is the case that ONLY reaches you here, since recoloring a tag changes no
     # object at all.
     ########################################
+    @staticmethod
+    def _pill(record: dict) -> str:
+        """The three colors of a tag record as one readable string, for the log lines below."""
+        return (f"color #{record['color']} text #{record['text_color']} "
+                f"border #{record['border_color']}")
+
     def tag_created(self: indigo.PluginBase, tag: dict) -> None:
         """
         Called when a tag is added to the server's tag library.
 
-        :param tag: the new tag as a one-entry {name: {"color": "AABBCC"}} map
+        :param tag: the new tag as a one-entry {name: record} map
         :return: None
         """
         for name, record in tag.items():
-            self.logger.info(f"tag_created: '{name}' color #{record['color']}")
+            self.logger.info(f"tag_created: '{name}' {self._pill(record)}")
 
     def tag_updated(self: indigo.PluginBase, orig_tag: dict, new_tag: dict) -> None:
         """
@@ -186,8 +198,8 @@ class Plugin(indigo.PluginBase):
         pure recolor has the same name in both, a pure rename the same color. That means you
         never have to have cached the previous library to see what happened.
 
-        :param orig_tag: the tag before the change, as {name: {"color": ...}}
-        :param new_tag: the tag after the change, as {name: {"color": ...}}
+        :param orig_tag: the tag before the change, as {name: record}
+        :param new_tag: the tag after the change, as {name: record}
         :return: None
         """
         orig_name, orig_record = next(iter(orig_tag.items()))
@@ -200,6 +212,11 @@ class Plugin(indigo.PluginBase):
             changes.append(f"recolored #{orig_color} -> #{new_color}")
         self.logger.info(f"tag_updated: {', '.join(changes) if changes else 'no visible change'}")
 
+        # Both halves carry the full record, derived colors included, so a plugin that draws
+        # tags can repaint straight from the callback without re-reading indigo.server.tags.
+        self.logger.info(f"tag_updated pill: '{orig_name}' {self._pill(orig_record)} -> "
+                         f"'{new_name}' {self._pill(new_record)}")
+
     def tag_deleted(self: indigo.PluginBase, tag: dict) -> None:
         """
         Called when a tag is removed from the server's tag library.
@@ -207,11 +224,11 @@ class Plugin(indigo.PluginBase):
         The tag is also removed from every object that carried it, and each of those objects
         reaches you as an ordinary update for its own type -- not through this callback.
 
-        :param tag: the tag as it was just before deletion, as {name: {"color": ...}}
+        :param tag: the tag as it was just before deletion, as {name: record}
         :return: None
         """
         for name, record in tag.items():
-            self.logger.info(f"tag_deleted: '{name}' color #{record['color']}")
+            self.logger.info(f"tag_deleted: '{name}' {self._pill(record)}")
 
     ########################################
     # Menu items -- these just dump current state, so you can compare it against the
