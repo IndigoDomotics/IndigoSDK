@@ -85,14 +85,15 @@ migration notes for plugin authors), `LICENSE`, `.gitignore`. There is no build 
 | Example HTTP Responder | `com.indigodomo.indigoplugin.example-http-responder` | Answering HTTP requests routed through the Indigo Web Server (`/message/<plugin id>/<action>/…`); Jinja2 templates and static files in `Resources/`. Vendors `jinja2`, `markupsafe`, `dicttoxml` in `Server Plugin/` |
 | Example INSTEON:X10 Listener | `com.example.indigoplugin.example-insteon-x10-listener` | `indigo.insteon` / `indigo.x10` `subscribeToIncoming()` / `subscribeToOutgoing()` |
 | Example Variable Change Subscriber | `com.example.indigoplugin.example-variable-change-subscriber` | `indigo.variables.subscribeToChanges()` and the `variableCreated/Updated/Deleted` callbacks |
+| Example Virtual Devices Listener | `com.example.indigoplugin.example-virtual-devices-listener` | `indigo.virtual_devices` `subscribe_to_incoming()` / `subscribe_to_outgoing()` and the `virtual_devices_command_received/sent` callbacks (needs Indigo 2026.2). Used as the subscriber by IndigoProj `tests/test_interfaces.py` |
 | Example ZWave Listener | `com.example.indigoplugin.example-zwave-listener` | `indigo.zwave.subscribeToIncoming()` / `subscribeToOutgoing()` |
 
 Two ID prefixes are in use (`com.indigodomo.` and `com.example.`); that is historical, not a rule.
 
 ## Versions and help URLs
 
-As of this writing all 16 bundles are consistent: `PluginVersion` `2026.1`, `ServerApiVersion`
-`3.9`, `CFBundleVersion` `1.0.0`. Keep them that way: when you touch one, check the rest with
+As of this writing all 18 bundles are consistent: `PluginVersion` `2026.2`, `ServerApiVersion`
+`3.10`, `CFBundleVersion` `1.0.0`. Keep them that way: when you touch one, check the rest with
 
 ```bash
 for p in *.indigoPlugin; do printf '%s  ' "$p"; for k in PluginVersion ServerApiVersion; do
